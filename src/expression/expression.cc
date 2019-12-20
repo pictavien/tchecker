@@ -338,4 +338,55 @@ namespace tchecker {
     v.visit(*this);
   }
 
+  // location_expression_t
+  location_expression_t::location_expression_t(std::string const & process,
+                                               std::string const & loc)
+                                     :_process(process), _loc(loc)
+  {
+    if (_process.empty())
+      throw std::invalid_argument("empty process name");
+    if (_loc.empty())
+      throw std::invalid_argument("empty location name");
+  }
+
+  std::ostream & location_expression_t::do_output(std::ostream & os) const
+  {
+    return (os << _process << "." << _loc);
+  }
+
+  tchecker::expression_t * location_expression_t::do_clone() const
+  {
+    return new tchecker::location_expression_t(_process, _loc);
+  }
+
+  void location_expression_t::do_visit(tchecker::expression_visitor_t & v) const
+  {
+    v.visit(*this);
+  }
+
+  // event_expression_t
+  event_expression_t::event_expression_t(std::string const & process,
+                                               std::string const & event)
+                                     :_process(process), _event(event)
+  {
+    if (_process.empty())
+      throw std::invalid_argument("empty process name");
+    if (_event.empty())
+      throw std::invalid_argument("empty event name");
+  }
+
+  std::ostream & event_expression_t::do_output(std::ostream & os) const
+  {
+    return (os << _process << "@" << _event);
+  }
+
+  tchecker::expression_t * event_expression_t::do_clone() const
+  {
+    return new tchecker::event_expression_t(_process, _event);
+  }
+
+  void event_expression_t::do_visit(tchecker::expression_visitor_t & v) const
+  {
+    v.visit(*this);
+  }
 } // end of namespace tchecker

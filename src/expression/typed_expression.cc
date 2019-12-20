@@ -30,6 +30,8 @@ namespace tchecker {
       case EXPR_TYPE_CLKCONSTR_SIMPLE:    return os << "CLKCONSTR_SIMPLE";
       case EXPR_TYPE_CLKCONSTR_DIAGONAL:  return os << "CLKCONSTR_DIAGONAL";
       case EXPR_TYPE_CONJUNCTIVE_FORMULA: return os << "CONJUNCTIVE_FORMULA";
+      case EXPR_TYPE_LOCATION_FORMULA:    return os << "LOCATION_FORMULA";
+      case EXPR_TYPE_EVENT_FORMULA:       return os << "EVENT_FORMULA";
       default:                            throw std::runtime_error("incomplete switch statement");
     }
   }
@@ -357,5 +359,48 @@ namespace tchecker {
   {
     v.visit(*this);
   }
+
+  /* typed_location_expression_t */
+  typed_location_expression_t::typed_location_expression_t(enum tchecker::expression_type_t type,
+                                                           std::string const &process,
+                                                           tchecker::process_id_t process_id,
+                                                           std::string const &loc,
+                                                           tchecker::loc_id_t loc_id)
+    : tchecker::make_typed_expression_t<tchecker::location_expression_t>(type, process, loc),
+        _process_id(process_id), _loc_id(loc_id)
+    {}
+
+
+  tchecker::expression_t * typed_location_expression_t::do_clone() const
+  {
+    return new tchecker::typed_location_expression_t(_type, _process, _process_id, _loc, _loc_id);
+  }
+
+  void typed_location_expression_t::do_visit(tchecker::typed_expression_visitor_t & v) const
+  {
+    v.visit(*this);
+  }
+
+  /* typed_event_expression_t */
+  typed_event_expression_t::typed_event_expression_t(enum tchecker::expression_type_t type,
+                                                     std::string const &process,
+                                                     tchecker::process_id_t process_id,
+                                                     std::string const &event,
+                                                     tchecker::loc_id_t event_id)
+    : tchecker::make_typed_expression_t<tchecker::event_expression_t>(type, process, event),
+        _process_id(process_id), _event_id(event_id)
+    {}
+
+
+  tchecker::expression_t * typed_event_expression_t::do_clone() const
+  {
+    return new tchecker::typed_event_expression_t(_type, _process, _process_id, _event, _event_id);
+  }
+
+  void typed_event_expression_t::do_visit(tchecker::typed_expression_visitor_t & v) const
+  {
+    v.visit(*this);
+  }
+
 
 } // end of namespace tchecker

@@ -155,6 +155,16 @@ namespace tchecker {
         os << "ASSIGN_FRAME";
         break;
 
+      case VM_LOCATION:
+        os << "LOCATION " << bytecode[1] << " " << bytecode[2];
+        res += 2;
+        break;
+
+      case VM_EVENT:
+        os << "EVENT " << bytecode[1] << " " << bytecode[2];
+        res += 2;
+        break;
+
       default:
         throw std::runtime_error("incomplete switch statement");
     }

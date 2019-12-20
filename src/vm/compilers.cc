@@ -179,7 +179,14 @@ namespace tchecker
       virtual void visit(tchecker::typed_ite_expression_t const & expr)
       { not_supported (expr); }
 
-    protected:
+      void visit(tchecker::typed_location_expression_t const &expr) override
+      { not_supported (expr); }
+
+      void visit(tchecker::typed_event_expression_t const &expr) override
+      { not_supported (expr); }
+
+
+     protected:
       void not_supported(tchecker::typed_expression_t const & expr) {
         throw std::invalid_argument("not lvalue expression: "+expr.to_string ());
       }
@@ -424,6 +431,26 @@ namespace tchecker
         compile_ite_expression(expr.condition (), expr.then_value (), expr.else_value ());
       }
 
+      void visit(tchecker::typed_location_expression_t const &expr) override
+      {
+        if (expr.type() != tchecker::EXPR_TYPE_LOCATION_FORMULA)
+          invalid_expression (expr, "an location formula");
+
+        _bytecode_back_inserter = VM_LOCATION;
+        _bytecode_back_inserter = expr.process();
+        _bytecode_back_inserter = expr.location();
+      }
+
+      void visit(tchecker::typed_event_expression_t const &expr) override
+      {
+        if (expr.type() != tchecker::EXPR_TYPE_EVENT_FORMULA)
+          invalid_expression (expr, "an event formula");
+
+        _bytecode_back_inserter = VM_EVENT;
+        _bytecode_back_inserter = expr.process();
+        _bytecode_back_inserter = expr.event();
+      }
+
      private:
       /*
        \brief Translates expression binary operators into bytecode instructions
@@ -599,7 +626,6 @@ namespace tchecker
         append_bytecode (_bytecode_back_inserter, else_bytecode);
       }
 
-
       void invalid_expression(tchecker::typed_expression_t const & expr,
                               std::string expected) {
           throw std::invalid_argument("invalid expression '" + expr.to_string () +
@@ -760,7 +786,13 @@ namespace tchecker
       virtual void visit(tchecker::typed_ite_expression_t const & expr)
       { not_supported (expr); }
 
-    protected:
+      void visit(tchecker::typed_location_expression_t const &expr) override
+      { not_supported (expr); }
+
+      void visit(tchecker::typed_event_expression_t const &expr) override
+      { not_supported (expr); }
+
+     protected:
       void not_supported(tchecker::typed_expression_t const & expr) {
         throw std::invalid_argument("not a bounded variable: " + expr.to_string ());
       }

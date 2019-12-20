@@ -146,6 +146,8 @@
 %token                TOK_GE                ">="
 %token                TOK_LT                "<"
 %token                TOK_GT                ">"
+%token                TOK_AT                "@"
+%token                TOK_DOT               "."
 %token                TOK_IF                "if"
 %token                TOK_END               "end"
 %token                TOK_THEN              "then"
@@ -182,7 +184,10 @@
                                             non_atomic_conjunctive_formula
                                             predicate_formula
                                             term
-%type <tchecker::lvalue_expression_t *>			lvalue_term
+                                            location_formula
+                                            event_formula
+
+%type <tchecker::lvalue_expression_t *>		lvalue_term
 %type <tchecker::var_expression_t *>        variable_term
 %type <enum tchecker::binary_operator_t>    predicate_operator
 %type <tchecker::integer_t>                 integer
@@ -368,6 +373,35 @@ predicate_formula:
 {
   try {
     $$ = new tchecker::binary_expression_t($2, $1, $3);
+  }
+  catch (std::exception const & e) {
+    error(@$, e.what());
+    $$ = new fake_expression_t();
+  }
+}
+| location_formula
+{ $$ = $1; }
+| event_formula
+{ $$ = $1; }
+;
+
+location_formula :
+TOK_ID TOK_DOT TOK_ID
+{
+  try {
+    $$ = new tchecker::location_expression_t($1, $3);
+  }
+  catch (std::exception const & e) {
+    error(@$, e.what());
+    $$ = new fake_expression_t();
+  }
+};
+
+event_formula :
+TOK_ID TOK_AT TOK_ID
+{
+  try {
+    $$ = new tchecker::event_expression_t($1, $3);
   }
   catch (std::exception const & e) {
     error(@$, e.what());

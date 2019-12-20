@@ -72,6 +72,10 @@ namespace tchecker {
                      // [vK-1] is assigned vK where vK-1 identifies a local variables.
     VM_INIT_FRAME,   // stack = v1 ... vK-2
                      // [vK-1] is initialized with vK where vK-1 identifies a local variables.
+
+    VM_LOCATION,     // stack = v1 ... vK-3 b  where b is true iff process vK-2 is in location vK-1
+    VM_EVENT,        // stack = v1 ... vK-3 b  where b is true iff process vK-2 triggers event vK-1
+
     VM_NOP,          // SHOULD BE LAST INSTRUCTION
   };
   

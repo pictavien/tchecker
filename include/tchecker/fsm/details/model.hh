@@ -376,7 +376,13 @@ namespace tchecker {
                                                  std::string const & context_msg)
         {
           tchecker::integer_variables_t localvars;
+          auto sys = this->_system;
           return tchecker::typecheck(expr,
+                                     this->_system->processes(),
+                                     [&sys] (std::string pname, std::string lname) -> tchecker::loc_id_t {
+                                        return sys->location(pname, lname)->id();
+                                     },
+                                     this->_system->events(),
                                      localvars,
                                      VARIABLES::system_integer_variables(*this->_system),
                                      VARIABLES::system_clock_variables(*this->_system),

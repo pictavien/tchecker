@@ -187,7 +187,18 @@ namespace tchecker {
         else
           expr.else_value ().visit(*this);
       }
-    protected:
+
+      void visit(tchecker::location_expression_t const & expr) override
+      {
+        throw std::invalid_argument("not a constant expression");
+      }
+
+      void visit(tchecker::event_expression_t const & expr) override
+      {
+        throw std::invalid_argument("not a constant expression");
+      }
+
+     protected:
       tchecker::integer_t _value;  /*!< Expression value */
     };
     
@@ -394,7 +405,17 @@ namespace tchecker {
         throw std::invalid_argument("not an lvalue expression");
       }
 
-    protected:
+      void visit(tchecker::typed_location_expression_t const & expr) override
+      {
+        throw std::invalid_argument("not a lvalue expression");
+      }
+
+      void visit(tchecker::typed_event_expression_t const & expr) override
+      {
+        throw std::invalid_argument("not a lvalue expression");
+      }
+
+     protected:
       tchecker::variable_id_t _first;                   /*!< ID of first variable */
       tchecker::variable_id_t _size;                    /*!< Number of variables */
       enum tchecker::expression_type_t _variable_type;  /*!< Type of base variable */
@@ -548,7 +569,18 @@ namespace tchecker {
       {
         throw std::invalid_argument("not an lvalue expression");
       }
-    private:
+
+      void visit(tchecker::typed_location_expression_t const & expr) override
+      {
+        throw std::invalid_argument("not a lvalue expression");
+      }
+
+      void visit(tchecker::typed_event_expression_t const & expr) override
+      {
+        throw std::invalid_argument("not a lvalue expression");
+      }
+
+     private:
       std::unordered_set<tchecker::clock_id_t> & _clocks;    /*!< Set of clock IDs */
       std::unordered_set<tchecker::intvar_id_t> & _intvars;  /*!< Set of integer variable IDs */
     };
@@ -574,7 +606,7 @@ namespace tchecker {
     
     /*!
      \class extract_variables_visitor_t
-     \brief Visitor of typed expressions for extraction of variabels IDs
+     \brief Visitor of typed expressions for extraction of variables IDs
      */
     class extract_variables_visitor_t : public tchecker::typed_expression_visitor_t {
     public:
@@ -687,7 +719,16 @@ namespace tchecker {
         expr.then_value().visit(*this);
         expr.else_value().visit(*this);
       }
-    private:
+
+      void visit(tchecker::typed_location_expression_t const & expr) override
+      {
+      }
+
+      void visit(tchecker::typed_event_expression_t const & expr) override
+      {
+      }
+
+     private:
       /*!
        \brief Add id |-> _pid to the right map according to type
        */
