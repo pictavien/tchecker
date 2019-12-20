@@ -43,6 +43,8 @@ namespace tchecker {
     EXPR_TYPE_CLKCONSTR_SIMPLE,     // Atomic simple clock constraint
     EXPR_TYPE_CLKCONSTR_DIAGONAL,   // Atomic diagonal clock constraint
     EXPR_TYPE_CONJUNCTIVE_FORMULA,  // Conjunction of atomic formulas
+    EXPR_TYPE_LOCATION_FORMULA,     // Formula on locations of processes
+    EXPR_TYPE_EVENT_FORMULA,        // Formula on event of processes
   };
   
   
@@ -70,6 +72,8 @@ namespace tchecker {
   class typed_simple_clkconstr_expression_t;
   class typed_diagonal_clkconstr_expression_t;
   class typed_ite_expression_t;
+  class typed_location_expression_t;
+  class typed_event_expression_t;
 
   
   
@@ -119,6 +123,8 @@ namespace tchecker {
     virtual void visit(tchecker::typed_simple_clkconstr_expression_t const &) = 0;
     virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const &) = 0;
     virtual void visit(tchecker::typed_ite_expression_t const &) = 0;
+    virtual void visit(tchecker::typed_location_expression_t const &) = 0;
+    virtual void visit(tchecker::typed_event_expression_t const &) = 0;
   };
   
   
@@ -867,6 +873,119 @@ namespace tchecker {
       using tchecker::make_typed_expression_t<tchecker::ite_expression_t>::do_visit;
     };
 
+    /*!
+     \class typed_location_expression_t
+     \brief Typed location expression
+     */
+    class typed_location_expression_t : public tchecker::make_typed_expression_t<tchecker::location_expression_t> {
+    public:
+      /*!
+       \brief Constructor
+       \param type : type of expression
+       \param process : name of the process
+       \param process_id : identifier of the process
+       \param loc : name of the location
+       \param loc_id : identifier of the location
+       */
+      typed_location_expression_t(enum tchecker::expression_type_t type,
+                                  std::string const &process,
+                                  tchecker::process_id_t process_id,
+                                  std::string const &loc,
+                                  tchecker::loc_id_t loc_id);
+
+      /*!
+       \brief Accessor
+       \return process
+       */
+      inline tchecker::process_id_t const process() const
+      {
+        return _process_id;
+      }
+
+      /*!
+       \brief Accessor
+       \return event
+       */
+      inline tchecker::loc_id_t const location() const
+      {
+        return _loc_id;
+      }
+
+    protected:
+      /*!
+       \brief Clone
+       \return clone of this
+       */
+      virtual tchecker::expression_t * do_clone() const;
+
+      /*!
+      \brief Visit
+      \param v : visitor
+      */
+      virtual void do_visit(tchecker::typed_expression_visitor_t & v) const;
+
+      using tchecker::make_typed_expression_t<tchecker::location_expression_t>::do_visit;
+
+      tchecker::process_id_t const _process_id;
+      tchecker::loc_id_t const _loc_id;
+    };
+
+    /*!
+     \class typed_event_expression_t
+     \brief Typed event expression
+     */
+    class typed_event_expression_t : public tchecker::make_typed_expression_t<tchecker::event_expression_t> {
+    public:
+      /*!
+       \brief Constructor
+       \param type : type of expression
+       \param process : name of the process
+       \param process_id : identifier of the process
+       \param event : name of the location
+       \param event_id : identifier of the location
+       */
+      typed_event_expression_t(enum tchecker::expression_type_t type,
+                               std::string const & process,
+                               tchecker::process_id_t process_id,
+                               std::string const & event,
+                               tchecker::event_id_t event_id);
+
+      /*!
+       \brief Accessor
+       \return process
+       */
+      inline tchecker::process_id_t const process() const
+      {
+        return _process_id;
+      }
+
+      /*!
+       \brief Accessor
+       \return event
+       */
+      inline tchecker::event_id_t const event() const
+      {
+        return _event_id;
+      }
+
+    protected:
+      /*!
+       \brief Clone
+       \return clone of this
+       */
+      virtual tchecker::expression_t * do_clone() const;
+
+      /*!
+      \brief Visit
+      \param v : visitor
+      */
+      virtual void do_visit(tchecker::typed_expression_visitor_t & v) const;
+
+      using tchecker::make_typed_expression_t<tchecker::event_expression_t>::do_visit;
+
+      tchecker::process_id_t const _process_id;
+      tchecker::event_id_t const _event_id;
+    };
 } // end of namespace tchecker
 
 #endif // TCHECKER_EXPRESSION_TYPED_HH

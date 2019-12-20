@@ -625,9 +625,132 @@ namespace tchecker {
     tchecker::expression_t const * _else_value;   /*!< 'else' part of the expression */
   };
 
+  /*!
+   \class location_expression_t
+   \brief Is a process in a given location
+   */
+  class location_expression_t : public virtual tchecker::expression_t {
+  public:
+    /*!
+     \brief Constructor
+     \param process : process name
+     \param loc : location name
+     \pre process and label are not empty
+     \throw std::invalid_argument : if either process or label is empty
+     */
+    explicit location_expression_t(std::string const & process, std::string const & loc);
 
-  
-  
+    /*!
+     \brief Destructor
+     */
+    virtual ~location_expression_t() = default;
+
+    /*!
+     \brief Accessor
+     \return Process
+     */
+    inline std::string const & process() const
+    {
+      return _process;
+    }
+
+    /*!
+     \brief Accessor
+     \return Location name
+     */
+    inline std::string const & loc() const
+    {
+      return _loc;
+    }
+  protected:
+    /*!
+     \brief Output the expression
+     \param os : output stream
+     \post this has been output to os
+     \return os after this has been output
+     */
+    virtual std::ostream & do_output(std::ostream & os) const;
+
+    /*!
+     \brief Clone
+     \return A clone of this
+     */
+    virtual tchecker::expression_t * do_clone() const;
+
+    /*!
+     \brief Visit
+     \param v : visitor
+     \post v.visit(*this) has been called
+     */
+    virtual void do_visit(tchecker::expression_visitor_t & v) const;
+
+    std::string const _process; /*!< Process name */
+    std::string const _loc;     /*!< Location/label name */
+  };
+
+  /*!
+   \class event_expression_t
+   \brief Does a process trigger a given event
+   */
+  class event_expression_t : public virtual tchecker::expression_t {
+   public:
+    /*!
+     \brief Constructor
+     \param process : process name
+     \param event : event name
+     \pre process and label are not empty
+     \throw std::invalid_argument : if either process or label is empty
+     */
+    explicit event_expression_t(std::string const & process, std::string const & event);
+
+    /*!
+     \brief Destructor
+     */
+    virtual ~event_expression_t() = default;
+
+    /*!
+     \brief Accessor
+     \return Process
+     */
+    inline std::string const & process() const
+    {
+      return _process;
+    }
+
+    /*!
+     \brief Accessor
+     \return event
+     */
+    inline std::string const & event() const
+    {
+      return _event;
+    }
+   protected:
+    /*!
+     \brief Output the expression
+     \param os : output stream
+     \post this has been output to os
+     \return os after this has been output
+     */
+    virtual std::ostream & do_output(std::ostream & os) const;
+
+    /*!
+     \brief Clone
+     \return A clone of this
+     */
+    virtual tchecker::expression_t * do_clone() const;
+
+    /*!
+     \brief Visit
+     \param v : visitor
+     \post v.visit(*this) has been called
+     */
+    virtual void do_visit(tchecker::expression_visitor_t & v) const;
+
+    std::string const _process; /*!< Process name */
+    std::string const _event;     /*!< Location/label name */
+  };
+
   /*!
    \class expression_visitor_t
    \brief Visitor for expressions
@@ -674,6 +797,8 @@ namespace tchecker {
     virtual void visit(tchecker::unary_expression_t const & expr) = 0;
     virtual void visit(tchecker::binary_expression_t const & expr) = 0;
     virtual void visit(tchecker::ite_expression_t const & expr) = 0;
+    virtual void visit(tchecker::location_expression_t const & expr) = 0;
+    virtual void visit(tchecker::event_expression_t const & expr) = 0;
   };
   
 } // end namespace tchecker

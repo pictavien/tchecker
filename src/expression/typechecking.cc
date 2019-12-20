@@ -26,11 +26,17 @@ namespace tchecker {
        \param clocks : clock variables
        \param log : logging facility
        */
-      expression_typechecker_t(tchecker::integer_variables_t const & localvars,
+      expression_typechecker_t(tchecker::process_index_t const & processes,
+                               std::function<tchecker::loc_id_t(std::string, std::string)> find_loc,
+                               tchecker::event_index_t const & events,
+                               tchecker::integer_variables_t const & localvars,
                                tchecker::integer_variables_t const & intvars,
                                tchecker::clock_variables_t const & clocks,
                                std::function<void(std::string const &)> error)
       : _typed_expr(nullptr),
+      _processes(processes),
+      _find_loc(find_loc),
+      _events(events),
       _localvars(localvars),
       _intvars(intvars),
       _clocks(clocks),
@@ -307,6 +313,56 @@ namespace tchecker {
                  " and " + expr.else_value ().to_string());
       }
 
+      void visit (tchecker::location_expression_t const &expr) override
+      {
+        std::string pname (expr.process ());
+        auto pid = _processes.find_value (pname);
+        if (pid == _processes.end_value_map ())
+          {
+            _error ("in expression " + expr.to_string () + ", unknown process '" +
+                pname + "'");
+            return;
+          }
+        std::string loc (expr.loc());
+        try
+          {
+            tchecker::loc_id_t loc_id = _find_loc(pname, loc);
+            _typed_expr = new tchecker::typed_location_expression_t(EXPR_TYPE_LOCATION_FORMULA,
+                                                                    pname, pid->second,
+                                                                    loc, loc_id);
+          }
+        catch (std::invalid_argument &e)
+          {
+            _error("in expression "+ expr.to_string() + ", unknown location " +
+                   loc);
+          }
+      }
+
+     void visit(tchecker::event_expression_t const & expr) override
+     {
+        std::string pname (expr.process ());
+        auto pid = _processes.find_value (pname);
+        if (pid == _processes.end_value_map ())
+          {
+            _error ("in expression " + expr.to_string () + ", unknown process '" +
+                    pname + "'");
+            return;
+          }
+       std::string ename (expr.event());
+       auto eid = _events.find_value (ename);
+       if (eid == _events.end_value_map ())
+         {
+           _error ("in expression " + expr.to_string () + ", unknown event '" +
+                   ename + "'");
+         }
+       else
+         {
+           _typed_expr = new tchecker::typed_event_expression_t(EXPR_TYPE_EVENT_FORMULA,
+                                                                pname, pid->second,
+                                                                ename, eid->second);
+
+         }
+     }
 
      protected:
       /*!
@@ -367,25 +423,45 @@ namespace tchecker {
         return std::make_tuple(tchecker::EXPR_TYPE_BAD, std::numeric_limits<tchecker::variable_id_t>::max(), 1);
       }
       
-      tchecker::typed_expression_t * _typed_expr;      /*!< Typed expression */
+      tchecker::typed_expression_t * _typed_expr;        /*!< Typed expression */
+      tchecker::process_index_t const & _processes;       /*!< Processes */
+      std::function<tchecker::loc_id_t(std::string, std::string)> _find_loc; /*!< Find location callback */
+      tchecker::event_index_t const & _events;           /*! < Events */
       tchecker::integer_variables_t const & _localvars;  /*!< Local variables */
-      tchecker::integer_variables_t const & _intvars;  /*!< Integer variables */
-      tchecker::clock_variables_t const & _clocks;     /*!< Clock variables */
-      std::function<void(std::string const &)> _error; /*!< Error logging func */
+      tchecker::integer_variables_t const & _intvars;    /*!< Integer variables */
+      tchecker::clock_variables_t const & _clocks;       /*!< Clock variables */
+      std::function<void(std::string const &)> _error;   /*!< Error logging func */
     };
     
   } // end of namespace details
-  
-  
-  
-  
-  tchecker::typed_expression_t * typecheck(tchecker::expression_t const & expr,
+
+
+
+    tchecker::typed_expression_t * typecheck(tchecker::expression_t const & expr,
+                                             tchecker::integer_variables_t const & localvars,
+                                             tchecker::integer_variables_t const & intvars,
+                                             tchecker::clock_variables_t const & clocks,
+                                             std::function<void(std::string const &)> error)
+    {
+      tchecker::process_index_t processes;
+      std::function<tchecker::loc_id_t(std::string, std::string)> find_loc([] (std::string, std::string) -> loc_id_t {
+        throw std::invalid_argument("no such location");
+      });
+      tchecker::event_index_t events;
+
+      return typecheck(expr, processes, find_loc, events, localvars, intvars, clocks, error);
+    }
+
+    tchecker::typed_expression_t * typecheck(tchecker::expression_t const & expr,
+                                           tchecker::process_index_t const &processes,
+                                           std::function<tchecker::loc_id_t(std::string, std::string)> find_loc,
+                                           tchecker::event_index_t const &events,
                                            tchecker::integer_variables_t const & localvars,
                                            tchecker::integer_variables_t const & intvars,
                                            tchecker::clock_variables_t const & clocks,
                                            std::function<void(std::string const &)> error)
   {
-    tchecker::details::expression_typechecker_t v(localvars, intvars, clocks, error);
+    tchecker::details::expression_typechecker_t v(processes, find_loc, events, localvars, intvars, clocks, error);
     expr.visit(v);
     return v.release();
   }

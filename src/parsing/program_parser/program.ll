@@ -89,6 +89,8 @@ integer  [0-9]+
 ">="           { return program::parser_t::make_TOK_GE(loc); }
 "<"            { return program::parser_t::make_TOK_LT(loc); }
 ">"            { return program::parser_t::make_TOK_GT(loc); }
+"@"            { return program::parser_t::make_TOK_AT(loc); }
+"."            { return program::parser_t::make_TOK_DOT(loc); }
 "nop"          { return program::parser_t::make_TOK_NOP(loc); }
 {integer}      { return program::parser_t::make_TOK_INTEGER(ppyytext,loc); }
 {id}           { return program::parser_t::make_TOK_ID(ppyytext, loc); }

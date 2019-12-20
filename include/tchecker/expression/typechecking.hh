@@ -13,6 +13,7 @@
 
 #include "tchecker/expression/expression.hh"
 #include "tchecker/expression/typed_expression.hh"
+#include <tchecker/system/system.hh>
 #include "tchecker/variables/clocks.hh"
 #include "tchecker/variables/intvars.hh"
 
@@ -39,7 +40,16 @@ namespace tchecker {
                                            tchecker::integer_variables_t const & intvars,
                                            tchecker::clock_variables_t const & clocks,
                                            std::function<void(std::string const &)> error = [](std::string const &){});
-  
+
+  tchecker::typed_expression_t * typecheck(tchecker::expression_t const & expr,
+                                           tchecker::process_index_t const &processes,
+                                           std::function<tchecker::loc_id_t(std::string, std::string)> find_loc,
+                                           tchecker::event_index_t const &events,
+                                           tchecker::integer_variables_t const & localvars,
+                                           tchecker::integer_variables_t const & intvars,
+                                           tchecker::clock_variables_t const & clocks,
+                                           std::function<void(std::string const &)> error = [](std::string const &){});
+
 } // end of namespace tchecker
 
 #endif // TCHECKER_EXPRESSION_TYPECHECKING_HH
