@@ -73,8 +73,9 @@ namespace tchecker {
     VM_INIT_FRAME,   // stack = v1 ... vK-2
                      // [vK-1] is initialized with vK where vK-1 identifies a local variables.
 
-    VM_LOCATION,     // stack = v1 ... vK-3 b  where b is true iff process vK-2 is in location vK-1
-    VM_EVENT,        // stack = v1 ... vK-3 b  where b is true iff process vK-2 triggers event vK-1
+    VM_LOCATION_ID,    // stack = v1 ... vK-2 b  where b is true iff process pid is in location loc
+    VM_LOCATION_LABEL, // stack = v1 ... vK-2 b  where b is true iff process pid is in location labelled lab
+    VM_EVENT,        // stack = v1 ... vK-2 b  where b is true iff process pid triggers event ev
 
     VM_NOP,          // SHOULD BE LAST INSTRUCTION
   };
@@ -195,7 +196,10 @@ namespace tchecker {
     {
       return (intvars_val.size() >= _flat_intvars_size);
     }
-    
+
+    using process_location_t = std::function<bool (process_id_t, loc_id_t)>;
+    using process_label_t = std::function<bool (process_id_t, label_id_t)>;
+
     /*!
      \brief Bytecode interpreter
      \param bytecode : tchecker bytecode
@@ -215,6 +219,8 @@ namespace tchecker {
      out-of-bound array access
      */
     tchecker::integer_t run(tchecker::bytecode_t const * bytecode,
+                            process_location_t const &in_location,
+                            process_label_t const &labelled_with,
                             tchecker::intvars_valuation_t & intvars_val,
                             tchecker::clock_constraint_container_t & clkconstr,
                             tchecker::clock_reset_container_t & clkreset)
@@ -229,7 +235,8 @@ namespace tchecker {
       
       do {
         try {
-          eval = interpret_instruction(bytecode, intvars_val, clkconstr, clkreset);
+          eval = interpret_instruction(bytecode, in_location, labelled_with,
+                                       intvars_val, clkconstr, clkreset);
         }
         catch (...) {
           clear();
@@ -261,6 +268,8 @@ namespace tchecker {
      out-of-bound array access
      */
     inline tchecker::integer_t interpret_instruction(tchecker::bytecode_t const * & bytecode,
+                                                     process_location_t const &in_location,
+                                                     process_label_t const &labelled_with,
                                                      tchecker::intvars_valuation_t & intvars_val,
                                                      tchecker::clock_constraint_container_t & clkconstr,
                                                      tchecker::clock_reset_container_t & clkreset)
@@ -585,8 +594,28 @@ namespace tchecker {
 
           return 0;
         }
-      }
-      
+
+        case VM_LOCATION_ID:
+          {
+            process_id_t pid = * ++bytecode;
+            loc_id_t lid = * ++bytecode;
+            push<tchecker::integer_t>(in_location(pid, lid));
+            return top<tchecker::integer_t>();
+          }
+
+        case VM_LOCATION_LABEL:
+          {
+            process_id_t pid = * ++bytecode;
+            label_id_t lid = * ++bytecode;
+            push<tchecker::integer_t>(labelled_with(pid, lid));
+            return top<tchecker::integer_t>();
+          }
+
+          case VM_EVENT:
+            throw std::runtime_error("VM_EVENT: instruction is not implemented.");
+          break;
+        }
+
       // should never be reached
       throw std::runtime_error("incomplete switch statement");
     }
@@ -605,13 +634,13 @@ namespace tchecker {
           auto kv = it->find (id);
           if (kv != it->end ())
             return kv->second;
-      }
+        }
       throw std::out_of_range("unknown local variable ID");
     }
 
 
     // integer domain checking
-    
+
     /*!
      \brief Check integer type compatibility
      \tparam EXPECTED : expected integer type
@@ -624,15 +653,15 @@ namespace tchecker {
     {
       static_assert(std::is_integral<EXPECTED>::value, "EXPECTED should be an integral type");
       static_assert(std::is_integral<ACTUAL>::value, "ACTUAL should be an integral type");
-      
+
       return ((val >= std::numeric_limits<EXPECTED>::min()) && (val <= std::numeric_limits<EXPECTED>::max()));
     }
-    
-    
-    
-    
+
+
+
+
     // stack operations
-    
+
     /*!
      \brief Accessor
      \tparam T : type of value
@@ -649,8 +678,8 @@ namespace tchecker {
         throw std::runtime_error("value out-of-bounds");
       return static_cast<T>(val);
     }
-    
-    
+
+
     /*!
      \brief Accessor
      \tparam T : type of value
@@ -665,8 +694,8 @@ namespace tchecker {
       _stack.pop_back();
       return t;
     }
-    
-    
+
+
     /*!
      \brief Push a value to the stack
      \tparam T : type of value
@@ -681,8 +710,8 @@ namespace tchecker {
         throw std::runtime_error("value out-of-bounds");
       _stack.push_back(t);
     }
-    
-    
+
+
     /*!
      \brief Clear the stack
      \post the stack is empty
@@ -691,8 +720,8 @@ namespace tchecker {
     {
       _stack.clear();
     }
-    
-    
+
+
     /*!
      \brief Accessor
      \return size of the stack
@@ -701,7 +730,7 @@ namespace tchecker {
     {
       return _stack.size();
     }
-    
+
 
     std::size_t const _flat_intvars_size;          /*!< Number of flat bounded integer variables */
     std::size_t const _flat_clocks_size;           /*!< Number of flat clock variables */
@@ -711,7 +740,7 @@ namespace tchecker {
 
     std::vector<frame_t> _frames;
   };
-  
+
 } // end of namespace tchecker
 
 

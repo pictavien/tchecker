@@ -405,7 +405,12 @@ namespace tchecker {
         throw std::invalid_argument("not an lvalue expression");
       }
 
-      void visit(tchecker::typed_location_expression_t const & expr) override
+      void visit(tchecker::typed_location_id_expression_t const & expr) override
+      {
+        throw std::invalid_argument("not a lvalue expression");
+      }
+
+      void visit(tchecker::typed_location_label_expression_t const & expr) override
       {
         throw std::invalid_argument("not a lvalue expression");
       }
@@ -570,7 +575,12 @@ namespace tchecker {
         throw std::invalid_argument("not an lvalue expression");
       }
 
-      void visit(tchecker::typed_location_expression_t const & expr) override
+      void visit(tchecker::typed_location_id_expression_t const & expr) override
+      {
+        throw std::invalid_argument("not a lvalue expression");
+      }
+
+      void visit(tchecker::typed_location_label_expression_t const & expr) override
       {
         throw std::invalid_argument("not a lvalue expression");
       }
@@ -720,7 +730,11 @@ namespace tchecker {
         expr.else_value().visit(*this);
       }
 
-      void visit(tchecker::typed_location_expression_t const & expr) override
+      void visit(tchecker::typed_location_id_expression_t const & expr) override
+      {
+      }
+
+      void visit(tchecker::typed_location_label_expression_t const & expr) override
       {
       }
 

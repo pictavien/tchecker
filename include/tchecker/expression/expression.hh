@@ -627,16 +627,16 @@ namespace tchecker {
 
   /*!
    \class location_expression_t
-   \brief Is a process in a given location
+   \brief Is a process in a given location or a location with a given label
    */
   class location_expression_t : public virtual tchecker::expression_t {
   public:
     /*!
      \brief Constructor
      \param process : process name
-     \param loc : location name
-     \pre process and label are not empty
-     \throw std::invalid_argument : if either process or label is empty
+     \param loc : location/labrl name
+     \pre process and loc are not empty
+     \throw std::invalid_argument : if either process or loc is empty
      */
     explicit location_expression_t(std::string const & process, std::string const & loc);
 
@@ -656,7 +656,7 @@ namespace tchecker {
 
     /*!
      \brief Accessor
-     \return Location name
+     \return Location/label name
      */
     inline std::string const & loc() const
     {

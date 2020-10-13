@@ -386,7 +386,8 @@ namespace tchecker {
         virtual void visit(tchecker::typed_array_expression_t const &) {}
         virtual void visit(tchecker::typed_unary_expression_t const &) {}
         virtual void visit(tchecker::typed_ite_expression_t const &) {}
-        void visit(tchecker::typed_location_expression_t const &) override {}
+        void visit(tchecker::typed_location_id_expression_t const &) override {}
+        void visit(tchecker::typed_location_label_expression_t const &) override {}
         void visit(tchecker::typed_event_expression_t const &) override {}
 
         /*!

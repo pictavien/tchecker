@@ -179,7 +179,10 @@ namespace tchecker
       virtual void visit(tchecker::typed_ite_expression_t const & expr)
       { not_supported (expr); }
 
-      void visit(tchecker::typed_location_expression_t const &expr) override
+      void visit(tchecker::typed_location_id_expression_t const &expr) override
+      { not_supported (expr); }
+
+      void visit(tchecker::typed_location_label_expression_t const &expr) override
       { not_supported (expr); }
 
       void visit(tchecker::typed_event_expression_t const &expr) override
@@ -431,14 +434,24 @@ namespace tchecker
         compile_ite_expression(expr.condition (), expr.then_value (), expr.else_value ());
       }
 
-      void visit(tchecker::typed_location_expression_t const &expr) override
+      void visit(tchecker::typed_location_id_expression_t const &expr) override
       {
-        if (expr.type() != tchecker::EXPR_TYPE_LOCATION_FORMULA)
-          invalid_expression (expr, "an location formula");
+        if (expr.type() != tchecker::EXPR_TYPE_LOCATION_ID_FORMULA)
+          invalid_expression (expr, "a location formula");
 
-        _bytecode_back_inserter = VM_LOCATION;
+        _bytecode_back_inserter = VM_LOCATION_ID;
         _bytecode_back_inserter = expr.process();
         _bytecode_back_inserter = expr.location();
+      }
+
+      void visit(tchecker::typed_location_label_expression_t const &expr) override
+      {
+        if (expr.type() != tchecker::EXPR_TYPE_LOCATION_LABEL_FORMULA)
+          invalid_expression (expr, "a location formula");
+
+        _bytecode_back_inserter = VM_LOCATION_LABEL;
+        _bytecode_back_inserter = expr.process();
+        _bytecode_back_inserter = expr.label();
       }
 
       void visit(tchecker::typed_event_expression_t const &expr) override
@@ -786,7 +799,10 @@ namespace tchecker
       virtual void visit(tchecker::typed_ite_expression_t const & expr)
       { not_supported (expr); }
 
-      void visit(tchecker::typed_location_expression_t const &expr) override
+      void visit(tchecker::typed_location_id_expression_t const &expr) override
+      { not_supported (expr); }
+
+      void visit(tchecker::typed_location_label_expression_t const &expr) override
       { not_supported (expr); }
 
       void visit(tchecker::typed_event_expression_t const &expr) override

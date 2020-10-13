@@ -57,6 +57,9 @@ namespace tchecker {
   bool bool_valued(enum tchecker::expression_type_t type)
   {
     return (integer_valued(type) ||
+            (type == tchecker::EXPR_TYPE_LOCATION_ID_FORMULA) ||
+            (type == tchecker::EXPR_TYPE_LOCATION_LABEL_FORMULA) ||
+            (type == tchecker::EXPR_TYPE_EVENT_FORMULA) ||
             (type == tchecker::EXPR_TYPE_CLKCONSTR_SIMPLE) ||
             (type == tchecker::EXPR_TYPE_CLKCONSTR_DIAGONAL) ||
             (type == tchecker::EXPR_TYPE_ATOMIC_PREDICATE) ||

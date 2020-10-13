@@ -273,12 +273,25 @@ namespace tchecker {
          \throw std::runtime_error : if running loc's invariant bytecode on intvars_val
          throws
          */
-        inline tchecker::integer_t check_location_invariant(typename VLOC::loc_t const * loc,
+        inline tchecker::integer_t check_location_invariant(VLOC &vloc,
+                                                            typename VLOC::loc_t const * loc,
                                                             INTVARS_VAL & intvars_val,
                                                             tchecker::clock_constraint_container_t & invariant)
         {
           try {
-            return _vm.run(this->_model.invariant_bytecode(loc->id()), intvars_val, invariant, _throw_clkreset);
+            return _vm.run(this->_model.invariant_bytecode(loc->id()),
+                           [&vloc] (process_id_t pid, loc_id_t lid) -> bool
+                           { return vloc[pid]->id () == lid; },
+                           [&vloc] (process_id_t pid, label_id_t lid) -> bool
+                           {
+                               for (tchecker::label_id_t label_id : vloc[pid]->labels ())
+                                 {
+                                   if (lid == label_id)
+                                     return true;
+                                 }
+                               return false;
+                           },
+                        intvars_val, invariant, _throw_clkreset);
           }
           catch (std::exception const & e) {
             throw std::runtime_error(e.what()
@@ -299,12 +312,24 @@ namespace tchecker {
          \throw std::runtime_error : if running edge's guard bytecode on intvars_val
          throws
          */
-        inline tchecker::integer_t check_edge_guard(typename MODEL::system_t::edge_t const * edge,
+        inline tchecker::integer_t check_edge_guard(VLOC &vloc, typename MODEL::system_t::edge_t const * edge,
                                                     INTVARS_VAL & intvars_val,
                                                     tchecker::clock_constraint_container_t & guard)
         {
           try {
-            return _vm.run(this->_model.guard_bytecode(edge->id()), intvars_val, guard, _throw_clkreset);
+              return _vm.run (this->_model.guard_bytecode (edge->id ()),
+                              [&vloc] (process_id_t pid, loc_id_t lid) -> bool
+                              { return vloc[pid]->id () == lid; },
+                              [&vloc] (process_id_t pid, label_id_t lid) -> bool
+                              {
+                                  for (tchecker::label_id_t label_id : vloc[pid]->labels ())
+                                    {
+                                      if (lid == label_id)
+                                        return true;
+                                    }
+                                  return false;
+                              },
+                              intvars_val, guard, _throw_clkreset);
           }
           catch (std::exception const & e) {
             throw std::runtime_error(e.what()
@@ -325,12 +350,25 @@ namespace tchecker {
          \throw std::runtime_error : if running edge's statement bytecode on intvars_val
          throws
          */
-        inline tchecker::integer_t apply_edge_statement(typename MODEL::system_t::edge_t const * edge,
+        inline tchecker::integer_t apply_edge_statement(VLOC &vloc,
+                                                        typename MODEL::system_t::edge_t const * edge,
                                                         INTVARS_VAL & intvars_val,
                                                         tchecker::clock_reset_container_t & clkreset)
         {
           try {
-            return _vm.run(this->_model.statement_bytecode(edge->id()), intvars_val, _throw_clkconstr, clkreset);
+              return _vm.run (this->_model.statement_bytecode (edge->id ()),
+                              [&vloc] (process_id_t pid, loc_id_t lid) -> bool
+                              { return vloc[pid]->id () == lid; },
+                              [&vloc] (process_id_t pid, label_id_t lid) -> bool
+                              {
+                                  for (tchecker::label_id_t label_id : vloc[pid]->labels ())
+                                    {
+                                      if (lid == label_id)
+                                        return true;
+                                    }
+                                  return false;
+                              },
+                              intvars_val, _throw_clkconstr, clkreset);
           }
           catch (std::exception const & e) {
             throw std::runtime_error(e.what()

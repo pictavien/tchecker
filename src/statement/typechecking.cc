@@ -36,15 +36,8 @@ namespace tchecker {
       _localvars(localvars),
       _intvars(intvars),
       _clocks(clocks),
-      _error(error),
-      _dummy_processes(),
-      _dummy_events()
-      {
-        _dummy_find_loc = std::function<tchecker::loc_id_t (std::string, std::string)>(
-            [] (std::string, std::string) -> tchecker::loc_id_t {
-                throw std::invalid_argument ("unknown location");
-            });
-      }
+      _error(error)
+      {}
       
       
       /*!
@@ -113,9 +106,9 @@ namespace tchecker {
       {
         // Left and right values
         tchecker::typed_lvalue_expression_t * typed_lvalue =
-        dynamic_cast<tchecker::typed_lvalue_expression_t *>(tchecker::typecheck(stmt.lvalue(), _dummy_processes, _dummy_find_loc, _dummy_events, _localvars, _intvars, _clocks, _error));
+        dynamic_cast<tchecker::typed_lvalue_expression_t *>(tchecker::typecheck(stmt.lvalue(), _localvars, _intvars, _clocks, _error));
         
-        tchecker::typed_expression_t * typed_rvalue = tchecker::typecheck(stmt.rvalue(),_dummy_processes, _dummy_find_loc, _dummy_events,  _localvars, _intvars, _clocks, _error);
+        tchecker::typed_expression_t * typed_rvalue = tchecker::typecheck(stmt.rvalue(), _localvars, _intvars, _clocks, _error);
         
         // Typed statement
         enum tchecker::statement_type_t stmt_type = type_assign(typed_lvalue->type(), typed_rvalue->type());
@@ -182,7 +175,7 @@ namespace tchecker {
       virtual void visit(tchecker::if_statement_t const & stmt)
       {
         tchecker::typed_expression_t * typed_cond =
-            tchecker::typecheck(stmt.condition (), _dummy_processes, _dummy_find_loc, _dummy_events, _localvars, _intvars, _clocks, _error);
+            tchecker::typecheck(stmt.condition (), _localvars, _intvars, _clocks, _error);
 
         stmt.then_stmt ().visit(*this);
         tchecker::typed_statement_t * typed_then = this->release();
@@ -215,7 +208,7 @@ namespace tchecker {
       virtual void visit(tchecker::while_statement_t const & stmt)
       {
         tchecker::typed_expression_t * typed_cond =
-            tchecker::typecheck(stmt.condition (), _dummy_processes, _dummy_find_loc, _dummy_events, _localvars, _intvars, _clocks, _error);
+            tchecker::typecheck(stmt.condition (), _localvars, _intvars, _clocks, _error);
 
         tchecker::integer_variables_t lvars (_localvars);
         stmt.statement ().visit(*this);
@@ -262,10 +255,10 @@ namespace tchecker {
 
         tchecker::typed_var_expression_t const *variable=
             dynamic_cast<tchecker::typed_var_expression_t const *>
-            (tchecker::typecheck(stmt.variable(), _dummy_processes, _dummy_find_loc, _dummy_events, _localvars, _intvars, _clocks, _error));
+            (tchecker::typecheck(stmt.variable(), _localvars, _intvars, _clocks, _error));
 
         tchecker::typed_expression_t const *init =
-            tchecker::typecheck(stmt.initial_value (), _dummy_processes, _dummy_find_loc, _dummy_events, _localvars, _intvars, _clocks, _error);
+            tchecker::typecheck(stmt.initial_value (), _localvars, _intvars, _clocks, _error);
 
         if (! tchecker::integer_valued (init->type()))
           stmt_type = tchecker::STMT_TYPE_BAD;
@@ -284,7 +277,7 @@ namespace tchecker {
 
         std::string name = stmt.variable().name();
         tchecker::typed_expression_t const *szexpr =
-            tchecker::typecheck(stmt.size (), _dummy_processes, _dummy_find_loc, _dummy_events, _localvars, _intvars, _clocks, _error);
+            tchecker::typecheck(stmt.size (), _localvars, _intvars, _clocks, _error);
 
         if (! integer_valued (szexpr->type ())) {
           _error ("array size is not an integer: " + szexpr->to_string ());
@@ -305,7 +298,7 @@ namespace tchecker {
         }
         tchecker::typed_var_expression_t const *variable=
             dynamic_cast<tchecker::typed_var_expression_t const *>
-            (tchecker::typecheck(stmt.variable(), _dummy_processes, _dummy_find_loc, _dummy_events, _localvars, _intvars, _clocks, _error));
+            (tchecker::typecheck(stmt.variable(), _localvars, _intvars, _clocks, _error));
         _typed_stmt = new tchecker::typed_local_array_statement_t (stmt_type, variable, szexpr);
       }
 
@@ -315,11 +308,6 @@ namespace tchecker {
       tchecker::integer_variables_t const & _intvars;  /*!< Integer variables */
       tchecker::clock_variables_t const & _clocks;     /*!< Clock variables */
       std::function<void(std::string const &)> _error; /*!< Error logging func */
-
-      tchecker::process_index_t _dummy_processes;       /*!< Processes */
-      std::function<tchecker::loc_id_t(std::string, std::string)> _dummy_find_loc;
-      tchecker::event_index_t _dummy_events;           /*! < Events */
-
     };
     
   } // end of namespace details

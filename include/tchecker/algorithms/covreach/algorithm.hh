@@ -73,8 +73,8 @@ namespace tchecker {
        and abstract edges. There is an abstract edge n1->n2 when the actual successor of n1 in ts is
        smaller than n2 (for some n2 in the graph). The order in which the states of ts are visited
        depends on the policy implemented by WAITING.
-       The algorithms stops when an accepting node has been found, or when the graph has been entirely
-       visited.
+       The algorithms stops when an accepting node has been found, or when the graph has been entirely
+       visited.
        \return REACHABLE if TS has an accepting run, UNREACHABLE otherwise
        \note this algorithm may not terminate if graph is not finite
        */

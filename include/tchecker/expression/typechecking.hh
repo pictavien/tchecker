@@ -44,6 +44,7 @@ namespace tchecker {
   tchecker::typed_expression_t * typecheck(tchecker::expression_t const & expr,
                                            tchecker::process_index_t const &processes,
                                            std::function<tchecker::loc_id_t(std::string, std::string)> find_loc,
+                                           std::function<tchecker::label_id_t(std::string)> find_label,
                                            tchecker::event_index_t const &events,
                                            tchecker::integer_variables_t const & localvars,
                                            tchecker::integer_variables_t const & intvars,
