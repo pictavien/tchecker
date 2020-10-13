@@ -28,6 +28,7 @@ namespace tchecker {
        */
       expression_typechecker_t(tchecker::process_index_t const & processes,
                                std::function<tchecker::loc_id_t(std::string, std::string)> find_loc,
+                               std::function<tchecker::label_id_t (std::string)> find_label,
                                tchecker::event_index_t const & events,
                                tchecker::integer_variables_t const & localvars,
                                tchecker::integer_variables_t const & intvars,
@@ -36,6 +37,7 @@ namespace tchecker {
       : _typed_expr(nullptr),
       _processes(processes),
       _find_loc(find_loc),
+      _find_label(find_label),
       _events(events),
       _localvars(localvars),
       _intvars(intvars),
@@ -316,26 +318,40 @@ namespace tchecker {
       void visit (tchecker::location_expression_t const &expr) override
       {
         std::string pname (expr.process ());
+        std::string lname (expr.loc ());
+
         auto pid = _processes.find_value (pname);
         if (pid == _processes.end_value_map ())
+            _error ("in expression " + expr.to_string () + ", unknown process '" + pname + "'");
+        else
           {
-            _error ("in expression " + expr.to_string () + ", unknown process '" +
-                pname + "'");
-            return;
+            try
+              {
+                tchecker::loc_id_t loc_id = _find_loc (pname, lname);
+                _typed_expr = new tchecker::typed_location_id_expression_t (EXPR_TYPE_LOCATION_ID_FORMULA,
+                                                                            pname, pid->second,
+                                                                            lname, loc_id);
+              }
+            catch (std::invalid_argument &)
+              {
+                try
+                  {
+                    tchecker::label_id_t label_id = _find_label (lname);
+                    _typed_expr = new tchecker::typed_location_label_expression_t (EXPR_TYPE_LOCATION_LABEL_FORMULA,
+                                                                                   pname, pid->second,
+                                                                                   lname, label_id);
+                  }
+                catch (std::invalid_argument &e)
+                  {
+                    _error ("in expression " + expr.to_string ()
+                            + ", unknown location or label " + lname);
+                  }
+              }
           }
-        std::string loc (expr.loc());
-        try
-          {
-            tchecker::loc_id_t loc_id = _find_loc(pname, loc);
-            _typed_expr = new tchecker::typed_location_expression_t(EXPR_TYPE_LOCATION_FORMULA,
-                                                                    pname, pid->second,
-                                                                    loc, loc_id);
-          }
-        catch (std::invalid_argument &e)
-          {
-            _error("in expression "+ expr.to_string() + ", unknown location " +
-                   loc);
-          }
+        if (_typed_expr == nullptr)
+          _typed_expr = new tchecker::typed_location_id_expression_t (EXPR_TYPE_BAD,
+                                                                      pname, -1,
+                                                                      lname, -1);
       }
 
      void visit(tchecker::event_expression_t const & expr) override
@@ -426,6 +442,7 @@ namespace tchecker {
       tchecker::typed_expression_t * _typed_expr;        /*!< Typed expression */
       tchecker::process_index_t const & _processes;       /*!< Processes */
       std::function<tchecker::loc_id_t(std::string, std::string)> _find_loc; /*!< Find location callback */
+      std::function<tchecker::label_id_t(std::string)> _find_label; /*!< Find label callback */
       tchecker::event_index_t const & _events;           /*! < Events */
       tchecker::integer_variables_t const & _localvars;  /*!< Local variables */
       tchecker::integer_variables_t const & _intvars;    /*!< Integer variables */
@@ -447,23 +464,26 @@ namespace tchecker {
       std::function<tchecker::loc_id_t(std::string, std::string)> find_loc([] (std::string, std::string) -> loc_id_t {
         throw std::invalid_argument("no such location");
       });
+      std::function<tchecker::label_id_t(std::string)> find_label([] (std::string) -> label_id_t {
+        throw std::invalid_argument("no such label");
+      });
       tchecker::event_index_t events;
 
-      return typecheck(expr, processes, find_loc, events, localvars, intvars, clocks, error);
+      return typecheck(expr, processes, find_loc, find_label, events, localvars, intvars, clocks, error);
     }
 
     tchecker::typed_expression_t * typecheck(tchecker::expression_t const & expr,
                                            tchecker::process_index_t const &processes,
                                            std::function<tchecker::loc_id_t(std::string, std::string)> find_loc,
+                                           std::function<tchecker::label_id_t(std::string)> find_label,
                                            tchecker::event_index_t const &events,
                                            tchecker::integer_variables_t const & localvars,
                                            tchecker::integer_variables_t const & intvars,
                                            tchecker::clock_variables_t const & clocks,
                                            std::function<void(std::string const &)> error)
-  {
-    tchecker::details::expression_typechecker_t v(processes, find_loc, events, localvars, intvars, clocks, error);
-    expr.visit(v);
-    return v.release();
-  }
-  
+    {
+      tchecker::details::expression_typechecker_t v(processes, find_loc, find_label, events, localvars, intvars, clocks, error);
+      expr.visit(v);
+      return v.release();
+    }
 } // end of namespace tchecker

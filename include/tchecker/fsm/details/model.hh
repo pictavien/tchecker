@@ -382,6 +382,9 @@ namespace tchecker {
                                      [&sys] (std::string pname, std::string lname) -> tchecker::loc_id_t {
                                         return sys->location(pname, lname)->id();
                                      },
+                                     [&sys] (std::string lname) -> tchecker::label_id_t {
+                                        return sys->labels().key(lname);
+                                     },
                                      this->_system->events(),
                                      localvars,
                                      VARIABLES::system_integer_variables(*this->_system),

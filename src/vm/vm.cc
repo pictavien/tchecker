@@ -155,8 +155,13 @@ namespace tchecker {
         os << "ASSIGN_FRAME";
         break;
 
-      case VM_LOCATION:
-        os << "LOCATION " << bytecode[1] << " " << bytecode[2];
+      case VM_LOCATION_ID:
+        os << "LOCATION_ID " << bytecode[1] << " " << bytecode[2];
+        res += 2;
+        break;
+
+      case VM_LOCATION_LABEL:
+        os << "LOCATION_LABEL " << bytecode[1] << " " << bytecode[2];
         res += 2;
         break;
 

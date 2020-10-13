@@ -1,0 +1,31 @@
+system:loc_property_2
+
+#clock:size:name
+#int:size:min:max:init:name
+#process:name
+#event:name
+#location:process:name{attributes}
+#edge:process:source:target:event:{attributes}
+#sync:events
+#   where
+#   attributes is a colon-separated list of key:value
+#   events is a colon-separated list of process@event
+
+int:1:0:3:0:count
+
+process:P1
+event: a1
+location:P1:l0{initial::labels:c}
+location:P1:l1{labels:d}
+edge:P1:l0:l1:a1{provided: P2.b}
+edge:P1:l1:l0:a1{provided: P2.a}
+
+process:P2
+event: a2
+location:P2:l0{initial::labels:a}
+location:P2:l1{labels:b}
+location:P2:l2{labels:done}
+edge:P2:l0:l1:a2{provided: P1.c}
+edge:P2:l1:l0:a2{provided: P1.d && count < 3: do:count=count+1}
+edge:P2:l1:l2:a2{provided: count == 3 }
+

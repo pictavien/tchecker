@@ -19,9 +19,9 @@
  */
 
 namespace tchecker {
-  
+
   // Expression type
-  
+
   /*!
    \brief Type of expressions
    */
@@ -43,11 +43,12 @@ namespace tchecker {
     EXPR_TYPE_CLKCONSTR_SIMPLE,     // Atomic simple clock constraint
     EXPR_TYPE_CLKCONSTR_DIAGONAL,   // Atomic diagonal clock constraint
     EXPR_TYPE_CONJUNCTIVE_FORMULA,  // Conjunction of atomic formulas
-    EXPR_TYPE_LOCATION_FORMULA,     // Formula on locations of processes
-    EXPR_TYPE_EVENT_FORMULA,        // Formula on event of processes
+    EXPR_TYPE_LOCATION_ID_FORMULA,    // Formula on locations of processes
+    EXPR_TYPE_LOCATION_LABEL_FORMULA, // Formula on locations of processes
+    EXPR_TYPE_EVENT_FORMULA,          // Formula on event of processes
   };
-  
-  
+
+
   /*!
    \brief Output operator for expression types
    \param os : output stream
@@ -56,12 +57,12 @@ namespace tchecker {
    \return os after output
    */
   std::ostream & operator<< (std::ostream & os, enum tchecker::expression_type_t type);
-  
-  
-  
-  
+
+
+
+
   // Typed expressions
-  
+
   class typed_int_expression_t;           // forward declarations
   class typed_var_expression_t;
   class typed_bounded_var_expression_t;
@@ -72,12 +73,13 @@ namespace tchecker {
   class typed_simple_clkconstr_expression_t;
   class typed_diagonal_clkconstr_expression_t;
   class typed_ite_expression_t;
-  class typed_location_expression_t;
+  class typed_location_id_expression_t;
+  class typed_location_label_expression_t;
   class typed_event_expression_t;
 
-  
-  
-  
+
+
+
   /*!
    \class typed_expression_visitor_t
    \brief Visitor pattern for typed expressions
@@ -88,28 +90,28 @@ namespace tchecker {
      \brief Constructor
      */
     typed_expression_visitor_t() = default;
-    
+
     /*!
      \brief Copy constructor
      */
     typed_expression_visitor_t(tchecker::typed_expression_visitor_t const &) = default;
-    
+
     /*!
      \brief Destructor
      */
     virtual ~typed_expression_visitor_t() = default;
-    
+
     /*!
      \brief Assignment operator
      */
     tchecker::typed_expression_visitor_t & operator= (tchecker::typed_expression_visitor_t const &) = default;
-    
+
     /*!
      \brief Move assignment operator
      */
     tchecker::typed_expression_visitor_t & operator= (tchecker::typed_expression_visitor_t &&) = default;
-    
-    
+
+
     /*!
      \brief Visitors
      */
@@ -123,13 +125,14 @@ namespace tchecker {
     virtual void visit(tchecker::typed_simple_clkconstr_expression_t const &) = 0;
     virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const &) = 0;
     virtual void visit(tchecker::typed_ite_expression_t const &) = 0;
-    virtual void visit(tchecker::typed_location_expression_t const &) = 0;
+    virtual void visit(tchecker::typed_location_id_expression_t const &) = 0;
+    virtual void visit(tchecker::typed_location_label_expression_t const &) = 0;
     virtual void visit(tchecker::typed_event_expression_t const &) = 0;
   };
-  
-  
-  
-  
+
+
+
+
   /*!
    \class typed_expression_t
    \brief Expression along with its type
@@ -141,8 +144,8 @@ namespace tchecker {
      \param type : expression type
      */
     typed_expression_t(enum tchecker::expression_type_t type);
-    
-    
+
+
     /*!
      \brief Accessor
      \return this expression's type
@@ -151,14 +154,14 @@ namespace tchecker {
     {
       return _type;
     }
-    
-    
+
+
     /*!
      \brief Visit
      \param v : typed expression visitor
      */
     void visit(tchecker::typed_expression_visitor_t & v) const;
-    
+
     using tchecker::expression_t::visit;     // untyped expression visitor
   protected:
     /*!
@@ -166,16 +169,16 @@ namespace tchecker {
      \param v : typed expression visitor
      */
     virtual void do_visit(tchecker::typed_expression_visitor_t & v) const = 0;
-    
+
     using tchecker::expression_t::do_visit;  // untyped expression visitor
-    
-    
+
+
     enum tchecker::expression_type_t const _type;  /*!< Expression type */
   };
-  
-  
-  
-  
+
+
+
+
   /*!
    \class typed_lvalue_expression_t
    \brief Typed left-value expressions
@@ -187,24 +190,24 @@ namespace tchecker {
      \param type : expression type
      */
     typed_lvalue_expression_t(enum tchecker::expression_type_t type);
-    
-    
+
+
     /*!
      \brief Destructor
      */
     virtual ~typed_lvalue_expression_t() = default;
-    
-    
+
+
     /*!
      \brief Accessor
      \return size (1 if assignable, > 1 otherwise)
      */
     virtual tchecker::variable_size_t size() const = 0;
   };
-  
-  
-  
-  
+
+
+
+
   /*!
    \class make_typed_expression_t
    \tparam EXPR : type of expression
@@ -231,8 +234,8 @@ namespace tchecker {
     {
       return this->EXPR::do_output(os);
     }
-    
-    
+
+
     /*!
      \brief Visit
      \param v : untyped expression visitor
@@ -241,18 +244,18 @@ namespace tchecker {
     {
       this->EXPR::do_visit(v);
     }
-    
-    
+
+
     /*!
      \brief Visit
      \param v : typed expression visitor
      */
     virtual void do_visit(tchecker::typed_expression_visitor_t & v) const = 0;
   };
-  
-  
-  
-  
+
+
+
+
   /*!
    \class make_typed_lvalue_expression_t
    \tparam EXPR : type of expression
@@ -279,8 +282,8 @@ namespace tchecker {
     {
       return this->EXPR::do_output(os);
     }
-    
-    
+
+
     /*!
      \brief Visit
      \param v : untyped expression visitor
@@ -289,18 +292,18 @@ namespace tchecker {
     {
       this->EXPR::do_visit(v);
     }
-    
-    
+
+
     /*!
      \brief Visit
      \param v : typed expression visitor
      */
     virtual void do_visit(tchecker::typed_expression_visitor_t & v) const = 0;
   };
-  
-  
-  
-  
+
+
+
+
   /*!
    \class typed_int_expression_t
    \brief Typed integer expression
@@ -315,19 +318,19 @@ namespace tchecker {
      \return clone of this
      */
     virtual tchecker::expression_t * do_clone() const;
-    
+
     /*!
      \brief Visit
      \param v : visitor
      */
     virtual void do_visit(tchecker::typed_expression_visitor_t & v) const;
-    
+
     using tchecker::make_typed_expression_t<tchecker::int_expression_t>::do_visit;
   };
-  
-  
-  
-  
+
+
+
+
   /*!
    \class typed_var_expression_t
    \brief Typed variable expression
@@ -347,8 +350,8 @@ namespace tchecker {
                            std::string const & name,
                            tchecker::variable_id_t id,
                            tchecker::variable_size_t size);
-    
-    
+
+
     /*!
      \brief Accessor
      \return variable identifier
@@ -357,8 +360,8 @@ namespace tchecker {
     {
       return _id;
     }
-    
-    
+
+
     /*!
      \brief Accessor
      \return variable size
@@ -373,22 +376,22 @@ namespace tchecker {
      \return clone of this
      */
     virtual tchecker::expression_t * do_clone() const;
-    
+
     /*!
      \brief Visit
      \param v : visitor
      */
     virtual void do_visit(tchecker::typed_expression_visitor_t & v) const;
-    
+
     using tchecker::make_typed_lvalue_expression_t<tchecker::var_expression_t>::do_visit;
-    
+
     tchecker::variable_id_t const _id;      /*!< Variable identifier */
     tchecker::variable_size_t const _size;  /*!< Variable size */
   };
-  
-  
-  
-  
+
+
+
+
   /*!
    \class typed_bounded_var_expression_t
    \brief Typed bounded variable expression
@@ -412,8 +415,8 @@ namespace tchecker {
                                    tchecker::variable_size_t size,
                                    tchecker::integer_t min,
                                    tchecker::integer_t max);
-    
-    
+
+
     /*!
      \brief Accessor
      \return variable minimal value
@@ -422,8 +425,8 @@ namespace tchecker {
     {
       return _min;
     }
-    
-    
+
+
     /*!
      \brief Accessor
      \return variable maximal value
@@ -438,22 +441,22 @@ namespace tchecker {
      \return clone of this
      */
     virtual tchecker::expression_t * do_clone() const;
-    
+
     /*!
      \brief Visit
      \param v : visitor
      */
     virtual void do_visit(tchecker::typed_expression_visitor_t & v) const;
-    
+
     using tchecker::typed_var_expression_t::do_visit;
-    
+
     tchecker::integer_t const _min;   /*!< Variable minimal value */
     tchecker::integer_t const _max;   /*!< Variable maximal value */
   };
-  
-  
-  
-  
+
+
+
+
   /*!
    \class typed_array_expression_t
    \brief Typed array expression
@@ -473,8 +476,8 @@ namespace tchecker {
     typed_array_expression_t(enum tchecker::expression_type_t type,
                              tchecker::typed_var_expression_t const * variable,
                              tchecker::typed_expression_t const * offset);
-    
-    
+
+
     /*!
      \brief Accessor
      \return variable as a typed expression
@@ -484,8 +487,8 @@ namespace tchecker {
       return * dynamic_cast<tchecker::typed_var_expression_t const *>
       (_variable);
     }
-    
-    
+
+
     /*!
      \brief Accessor
      \return offset as a typed expression
@@ -495,8 +498,8 @@ namespace tchecker {
       return * dynamic_cast<tchecker::typed_expression_t const *>
       (_offset);
     }
-    
-    
+
+
     /*!
      \brief Accessor
      \return size
@@ -511,19 +514,19 @@ namespace tchecker {
      \return clone of this
      */
     virtual tchecker::expression_t * do_clone() const;
-    
+
     /*!
      \brief Visit
      \param v : visitor
      */
     virtual void do_visit(tchecker::typed_expression_visitor_t & v) const;
-    
+
     using tchecker::make_typed_lvalue_expression_t<tchecker::array_expression_t>::do_visit;
   };
-  
-  
-  
-  
+
+
+
+
   /*!
    \class typed_par_expression_t
    \brief Typed parenthesis expression
@@ -540,8 +543,8 @@ namespace tchecker {
                            tchecker::typed_expression_t * expr)
     : tchecker::make_typed_expression_t<tchecker::par_expression_t>(type, expr)
     {}
-    
-    
+
+
     /*!
      \brief Accessor
      \return operand
@@ -559,25 +562,25 @@ namespace tchecker {
     {
       return dynamic_cast<tchecker::typed_expression_t *>(this->tchecker::par_expression_t::expr().clone());
     }
-    
+
     /*!
      \brief Clone
      \return clone of this
      */
     virtual tchecker::expression_t * do_clone() const;
-    
+
     /*!
      \brief Visit
      \param v : visitor
      */
     virtual void do_visit(tchecker::typed_expression_visitor_t & v) const;
-    
+
     using tchecker::make_typed_expression_t<tchecker::par_expression_t>::do_visit;
   };
-  
-  
-  
-  
+
+
+
+
   /*!
    \class typed_binary_expression_t
    \brief Typed binary expression
@@ -595,15 +598,15 @@ namespace tchecker {
                               enum tchecker::binary_operator_t op,
                               tchecker::typed_expression_t * left,
                               tchecker::typed_expression_t * right);
-    
-    
+
+
     /*!
      \brief Accessor
      \return left operand
      */
     tchecker::typed_expression_t const & left_operand() const;
-    
-    
+
+
     /*!
      \brief Accessor
      \return right operand
@@ -615,33 +618,33 @@ namespace tchecker {
      \return typed left operand clone
      */
     tchecker::typed_expression_t * left_operand_clone() const;
-    
-    
+
+
     /*!
      \brief Clone (cast to typed_expression_t)
      \return typed right operand clone
      */
     tchecker::typed_expression_t * right_operand_clone() const;
-    
-    
+
+
     /*!
      \brief Clone
      \return clone of this
      */
     virtual tchecker::expression_t * do_clone() const;
-    
+
     /*!
      \brief Visit
      \param v : visitor
      */
     virtual void do_visit(tchecker::typed_expression_visitor_t & v) const;
-    
+
     using tchecker::make_typed_expression_t<tchecker::binary_expression_t>::do_visit;
   };
-  
-  
-  
-  
+
+
+
+
   /*!
    \class typed_unary_expression_t
    \brief Typed unary expression
@@ -657,8 +660,8 @@ namespace tchecker {
     typed_unary_expression_t(enum tchecker::expression_type_t type,
                              enum tchecker::unary_operator_t op,
                              tchecker::typed_expression_t * operand);
-    
-    
+
+
     /*!
      \brief Accessor
      \return operand
@@ -670,26 +673,26 @@ namespace tchecker {
      \return typed operand clone
      */
     tchecker::typed_expression_t * operand_clone() const;
-    
-    
+
+
     /*!
      \brief Clone
      \return clone of this
      */
     virtual tchecker::expression_t * do_clone() const;
-    
+
     /*!
      \brief Visit
      \param v : visitor
      */
     virtual void do_visit(tchecker::typed_expression_visitor_t & v) const;
-    
+
     using tchecker::make_typed_expression_t<tchecker::unary_expression_t>::do_visit;
   };
-  
-  
-  
-  
+
+
+
+
   /*!
    \class typed_simple_clkconstr_expression_t
    \brief Typed simple clock constraint expression (x # c)
@@ -707,8 +710,8 @@ namespace tchecker {
                                         enum tchecker::binary_operator_t op,
                                         tchecker::typed_expression_t * left,
                                         tchecker::typed_expression_t * right);
-    
-    
+
+
     /*!
      \brief Accessor
      \return clock expression
@@ -717,8 +720,8 @@ namespace tchecker {
     {
       return dynamic_cast<tchecker::typed_lvalue_expression_t const &>(left_operand());
     }
-    
-    
+
+
     /*!
      \brief Accessor
      \return bound expression
@@ -733,13 +736,13 @@ namespace tchecker {
      \param v : visitor
      */
     virtual void do_visit(tchecker::typed_expression_visitor_t & v) const;
-    
+
     using tchecker::typed_binary_expression_t::do_visit;
   };
-  
-  
-  
-  
+
+
+
+
   /*!
    \class typed_diagonal_clkconstr_expression_t
    \brief Typed diagonal clock constraint expression (x - y # c)
@@ -757,8 +760,8 @@ namespace tchecker {
                                           enum tchecker::binary_operator_t op,
                                           tchecker::typed_expression_t * left,
                                           tchecker::typed_expression_t * right);
-    
-    
+
+
     /*!
      \brief Accessor
      \return first clock expression (i.e. x in x - y # c)
@@ -768,8 +771,8 @@ namespace tchecker {
       auto const & diagonal = dynamic_cast<tchecker::typed_binary_expression_t const &>(left_operand());  // left expr is x - y
       return dynamic_cast<tchecker::typed_lvalue_expression_t const &>(diagonal.left_operand());
     }
-    
-    
+
+
     /*!
      \brief Accessor
      \return second clock expression (i.e. y in x - y # c)
@@ -779,8 +782,8 @@ namespace tchecker {
       auto const & diagonal = dynamic_cast<tchecker::typed_binary_expression_t const &>(left_operand());  // left expr is x - y
       return dynamic_cast<tchecker::typed_lvalue_expression_t const &>(diagonal.right_operand());
     }
-    
-    
+
+
     /*!
      \brief Accessor
      \return bound expression
@@ -795,7 +798,7 @@ namespace tchecker {
      \param v : visitor
      */
     virtual void do_visit(tchecker::typed_expression_visitor_t & v) const;
-    
+
     using tchecker::typed_binary_expression_t::do_visit;
   };
 
@@ -874,10 +877,10 @@ namespace tchecker {
     };
 
     /*!
-     \class typed_location_expression_t
-     \brief Typed location expression
+     \class typed_location_id_expression_t
+     \brief Typed location identifier expression
      */
-    class typed_location_expression_t : public tchecker::make_typed_expression_t<tchecker::location_expression_t> {
+    class typed_location_id_expression_t : public tchecker::make_typed_expression_t<tchecker::location_expression_t> {
     public:
       /*!
        \brief Constructor
@@ -887,11 +890,11 @@ namespace tchecker {
        \param loc : name of the location
        \param loc_id : identifier of the location
        */
-      typed_location_expression_t(enum tchecker::expression_type_t type,
-                                  std::string const &process,
-                                  tchecker::process_id_t process_id,
-                                  std::string const &loc,
-                                  tchecker::loc_id_t loc_id);
+      typed_location_id_expression_t (enum tchecker::expression_type_t type,
+                                      std::string const &process,
+                                      tchecker::process_id_t process_id,
+                                      std::string const &loc,
+                                      tchecker::loc_id_t loc_id);
 
       /*!
        \brief Accessor
@@ -904,7 +907,7 @@ namespace tchecker {
 
       /*!
        \brief Accessor
-       \return event
+       \return location identifier
        */
       inline tchecker::loc_id_t const location() const
       {
@@ -928,6 +931,63 @@ namespace tchecker {
 
       tchecker::process_id_t const _process_id;
       tchecker::loc_id_t const _loc_id;
+    };
+
+    /*!
+     \class typed_location_label_expression_t
+     \brief Typed location label expression
+     */
+    class typed_location_label_expression_t : public tchecker::make_typed_expression_t<tchecker::location_expression_t> {
+    public:
+      /*!
+       \brief Constructor
+       \param type : type of expression
+       \param process : name of the process
+       \param process_id : identifier of the process
+       \param label : label name
+       \param label_id : identifier of the label
+       */
+      typed_location_label_expression_t (enum tchecker::expression_type_t type,
+                                         std::string const &process,
+                                         tchecker::process_id_t process_id,
+                                         std::string const &label,
+                                         tchecker::label_id_t label_id);
+
+      /*!
+       \brief Accessor
+       \return process
+       */
+      inline tchecker::process_id_t const process() const
+      {
+        return _process_id;
+      }
+
+      /*!
+       \brief Accessor
+       \return label identifier
+       */
+      inline tchecker::label_id_t const label() const
+      {
+        return _label_id;
+      }
+
+    protected:
+      /*!
+       \brief Clone
+       \return clone of this
+       */
+      virtual tchecker::expression_t * do_clone() const;
+
+      /*!
+      \brief Visit
+      \param v : visitor
+      */
+      virtual void do_visit(tchecker::typed_expression_visitor_t & v) const;
+
+      using tchecker::make_typed_expression_t<tchecker::location_expression_t>::do_visit;
+
+      tchecker::process_id_t const _process_id;
+      tchecker::label_id_t const _label_id;
     };
 
     /*!
