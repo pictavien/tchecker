@@ -288,10 +288,82 @@ namespace tchecker {
       tchecker::integer_t const _max;    /*!< Max value */
       tchecker::integer_t const _init;   /*!< Initial value */
     };
-    
-    
-    
-    
+
+      /*!
+       \class property_declaration_t
+       \brief Declaration of a property
+       */
+      class property_declaration_t final : public tchecker::parsing::inner_declaration_t {
+       public:
+        /*!
+         \brief Constructor
+         \param name : name of the property
+         \param (kind, formula) : logic of the property
+         \pre name is not empty,
+         \throws std::invalid_argument : the pre condition is not satisfied
+         */
+        property_declaration_t(std::string name, std::string kind, std::string formula);
+
+        /*!
+         \brief Destructor
+         */
+        virtual ~property_declaration_t() = default;
+
+        /*!
+         \brief Accessor
+         \return Name
+         */
+        inline std::string const & name() const
+        {
+          return _name;
+        }
+
+        /*!
+         \brief Accessor
+         \return kind
+         */
+        inline std::string kind() const
+        {
+          return _kind;
+        }
+
+        /*!
+         \brief Accessor
+         \return formula
+         */
+        inline std::string formula() const
+        {
+          return _formula;
+        }
+
+       private:
+        /*!
+         \brief Clone
+         \returns A clone of this
+         */
+        virtual tchecker::parsing::declaration_t * do_clone() const;
+
+        /*!
+         \brief Visit
+         \post this has been visited by v
+         */
+        virtual void do_visit(tchecker::parsing::declaration_visitor_t & v) const;
+
+        /*!
+         \brief Output the declaration
+         \param os : output stream
+         \post this declaration has been output to os
+         \return os after this declaration has been output
+         */
+        virtual std::ostream & do_output(std::ostream & os) const;
+
+        std::string const _name;    /*!< Name */
+        std::string const _kind;    /*!< Kind of property */
+        std::string const _formula; /*!< Formula */
+      };
+
+
+
     /*
      \class process_declaration_t
      \brief Declaration of a process
@@ -837,10 +909,10 @@ namespace tchecker {
       tchecker::parsing::event_declaration_t const & _event;      /*!< Event */
       tchecker::parsing::attributes_t const _attr;                /*!< Attributes */
     };
-    
-    
-    
-    
+
+
+
+
     /*!
      \class sync_constraint_t
      \brief Synchronization constraint
@@ -1067,7 +1139,30 @@ namespace tchecker {
         assert(d != nullptr);
         return insert_declaration(d->name(), d, _ints);
       }
-      
+
+      /*!
+       \brief Accessor
+       \param name : name of declaration
+       \return property declaration with name if any, nullptr otherwise
+       */
+      inline tchecker::parsing::property_declaration_t const * get_property_declaration(std::string const & name) const
+      {
+        return get_declaration(name, _properties);
+      }
+
+      /*!
+       \brief Insert an property declaration
+       \param d : property declaration
+       \pre d != nullptr (checked by assertion)
+       \return true if d has been inserted, false otherwise
+       \note this takes owenship on d if inserted
+       */
+      inline bool insert_property_declaration(tchecker::parsing::property_declaration_t const * d)
+      {
+        assert(d != nullptr);
+        return insert_declaration(d->name(), d, _properties);
+      }
+
       /*!
        \brief Accessor
        \param name : name of declaration
@@ -1275,6 +1370,7 @@ namespace tchecker {
       std::string const _name;                                             /*!< Name */
       std::vector<inner_declaration_t const *> _decl;                      /*!< Declarations */
       declaration_map_t<tchecker::parsing::int_declaration_t> _ints;       /*!< int declarations index */
+      declaration_map_t<tchecker::parsing::property_declaration_t> _properties; /*!< property declarations index */
       declaration_map_t<tchecker::parsing::clock_declaration_t> _clocks;   /*!< clock declaration index */
       declaration_map_t<tchecker::parsing::process_declaration_t> _procs;  /*!< process declaration index */
       declaration_map_t<tchecker::parsing::event_declaration_t> _events;   /*!< event declaration index */
@@ -1326,6 +1422,7 @@ namespace tchecker {
       virtual void visit(tchecker::parsing::system_declaration_t const & d) = 0;
       virtual void visit(tchecker::parsing::clock_declaration_t const & d) = 0;
       virtual void visit(tchecker::parsing::int_declaration_t const & d) = 0;
+      virtual void visit(tchecker::parsing::property_declaration_t const & d) = 0;
       virtual void visit(tchecker::parsing::process_declaration_t const & d) = 0;
       virtual void visit(tchecker::parsing::event_declaration_t const & d) = 0;
       virtual void visit(tchecker::parsing::location_declaration_t const & d) = 0;

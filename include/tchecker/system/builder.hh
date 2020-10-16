@@ -151,6 +151,20 @@ namespace tchecker {
       }
     }
     
+    /*!
+     \brief Add property
+     */
+    void visit(tchecker::parsing::property_declaration_t const & d) override
+    {
+      try {
+        _system->add_property(d.name(), d.kind(), d.formula());
+      }
+      catch (std::exception const & e) {
+        _log.error("property " + d.name(), e.what());
+        throw;
+      }
+    }
+
     // add synchronization
   protected:
     /*!

@@ -81,6 +81,7 @@ integer   [-+]?[0-9]+
 "int"          { return system::parser_t::make_TOK_INT(loc); }
 "location"     { return system::parser_t::make_TOK_LOCATION(loc); }
 "process"      { return system::parser_t::make_TOK_PROCESS(loc); }
+"property"     { return system::parser_t::make_TOK_PROPERTY(loc); }
 "sync"         { return system::parser_t::make_TOK_SYNC(loc); }
 "system"       { return system::parser_t::make_TOK_SYSTEM(loc); }
 {id}           { return system::parser_t::make_TOK_ID(spyytext, loc); }

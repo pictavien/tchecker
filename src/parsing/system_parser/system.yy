@@ -77,6 +77,7 @@
 %token <std::string>  TOK_INTEGER        "integer value"
 %token                TOK_LOCATION       "location"
 %token                TOK_PROCESS        "process"
+%token                TOK_PROPERTY       "property"
 %token                TOK_SYNC           "sync"
 %token                TOK_SYSTEM         "system"
 %token <std::string>  TOK_TEXT           "text value"
@@ -240,6 +241,25 @@ TOK_CLOCK ":" uinteger ":" TOK_ID "\n"
       catch (std::exception const & e) {
         error(@$, e.what());
       }
+    }
+  }
+}
+
+| TOK_PROPERTY ":" TOK_ID "{" TOK_ID ":" TOK_TEXT "}" "\n"
+{
+  auto const * d = system_declaration->get_property_declaration($3);
+  if (d != nullptr)
+    error(@3, "multiple declarations of property " + $3);
+  else {
+    try {
+      d = new tchecker::parsing::property_declaration_t($3, $5, $7);
+      if ( ! system_declaration->insert_property_declaration(d) ) {
+        error(@$, "insertion of property declaration failed");
+        delete d;
+      }
+    }
+    catch (std::exception const & e) {
+      error(@$, e.what());
     }
   }
 }

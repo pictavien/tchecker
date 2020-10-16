@@ -21,6 +21,7 @@
 #include "tchecker/system/edge.hh"
 #include "tchecker/system/loc.hh"
 #include "tchecker/system/synchronization.hh"
+#include "tchecker/system/properties.hh"
 #include "tchecker/utils/index.hh"
 #include "tchecker/utils/iterator.hh"
 
@@ -56,9 +57,7 @@ namespace tchecker {
   public:
     using tchecker::autokey_index_t<tchecker::process_id_t, std::string>::autokey_index_t;
   };
-  
-  
-  
+
   
   /*!
    \brief Type of iterator over synchronization vectors
@@ -107,7 +106,9 @@ namespace tchecker {
      \brief Type of edges
      */
     using edge_t = EDGE;
-    
+
+    using property_t = tchecker::property_t;
+
     /*!
      \brief Constructor
      \param name : new name
@@ -129,7 +130,8 @@ namespace tchecker {
     : _name(system._name),
     _events(system._events),
     _processes(system._processes),
-    _syncs(system._syncs)
+    _syncs(system._syncs),
+    _properties(system._properties)
     {
       system.clone_locations_and_edges(*this);
     }
@@ -176,6 +178,7 @@ namespace tchecker {
         _edges.clear();
         system.clone_locations_and_edges(*this);
         _syncs = system._syncs;
+        _properties = system._properties;
       }
       return *this;
     }
@@ -214,7 +217,22 @@ namespace tchecker {
     {
       return _processes;
     }
-    
+
+    inline tchecker::properties_t const &properties() const
+    {
+      return _properties;
+    }
+    /*!
+     \brief Accessor
+     \return number of properties
+     \note all values between 0 and the returned value-1 are valid property
+     identifiers
+     */
+    inline tchecker::property_id_t properties_count() const
+    {
+      return static_cast<tchecker::property_id_t >(_properties.size());
+    }
+
     // iterator over locations
   private:
     /*!
@@ -569,7 +587,13 @@ namespace tchecker {
         throw;
       }
     }
-  protected:
+
+    void
+    add_property(std::string name, std::string kind, std::string formula) {
+      _properties.add(name, kind, formula);
+    }
+
+   protected:
     /*!
      \brief Accessor
      \return Next location ID (1 + biggest ID among declared locations)
@@ -757,6 +781,7 @@ namespace tchecker {
     loc_multimap_t _initial_locs;                     /*!< Map pid -> {initial locs} */
     std::vector<EDGE *> _edges;                       /*!< Edges */
     std::vector<tchecker::synchronization_t> _syncs;  /*!< Synchronization vectors */
+    properties_t _properties;
   };
   
 } // end of namespace tchecker
