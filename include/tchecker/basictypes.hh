@@ -94,6 +94,11 @@ const integer_t int_minval = INT16_MIN;
   using label_id_t = uint32_t;
   
   /*!
+   \brief Type of property identifiers
+   */
+  using property_id_t = uint32_t;
+
+  /*!
    \brief Type of location identifiers
    */
   using loc_id_t = uint32_t;
