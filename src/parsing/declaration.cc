@@ -119,8 +119,42 @@ namespace tchecker {
       return os;
     }
     
-    
-    
+    /* property_declaration_t */
+
+    property_declaration_t::property_declaration_t(std::string name,
+                                                std::string kind,
+                                         std::string formula)
+                                         : _name(std::move(name)),
+                                         _kind(std::move(kind)),
+                                         _formula(std::move(formula))
+    {
+      if (_name.empty())
+        throw std::invalid_argument("property declaration has an empty name");
+      if (_kind.empty())
+        throw std::invalid_argument("property declaration has an empty kind");
+      if (_formula.empty())
+        throw std::invalid_argument("property declaration has an empty formula");
+    }
+
+    tchecker::parsing::declaration_t * property_declaration_t::do_clone() const
+    {
+      return new tchecker::parsing::property_declaration_t(_name, _kind, _formula);
+    }
+
+
+
+    void property_declaration_t::do_visit(tchecker::parsing::declaration_visitor_t & v) const
+    {
+      v.visit(*this);
+    }
+
+
+
+    std::ostream & property_declaration_t::do_output(std::ostream & os) const
+    {
+      os << "property:" << name() << ":" << kind() << ":" << formula();
+      return os;
+    }
     
     /* process_declaration_t */
     
@@ -604,7 +638,13 @@ namespace tchecker {
         _sysdecl.insert_int_declaration(d2);
       }
       
-      
+      void visit(property_declaration_t const & d) override
+      {
+        auto const * d2 = dynamic_cast<tchecker::parsing::property_declaration_t const *>(d.clone());
+        _sysdecl.insert_property_declaration(d2);
+      }
+
+
       virtual void visit(process_declaration_t const & d)
       {
         auto const * d2 = dynamic_cast<tchecker::parsing::process_declaration_t const *>(d.clone());

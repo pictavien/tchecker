@@ -169,6 +169,34 @@ namespace tchecker {
     os << event_name;
   }
   
+  /*!
+   \brief Output property following tchecker syntax
+   \tparam SYSTEM : type of system, should inherit from tchecker::system_t
+   \param os : output stream
+   \param prop : the property
+   \post prop has been been output to os (property:id{ kind : formula })
+   */
+  template <class SYSTEM>
+  void tchecker_output_property(std::ostream & os, SYSTEM const & s, typename SYSTEM::property_t const & prop)
+  {
+    os << "property:" << prop.name() << "{ " << prop.kind() << " : " << prop.formula() << "}";
+  }
+
+    /*!
+   \brief Output system properties following tchecker syntax
+   \tparam SYSTEM : type of system, should inherit from tchecker::system_t
+   \param os : output stream
+   \param s : system
+   \post s properties have been output to os
+   */
+    template <class SYSTEM>
+    void tchecker_output_system_properties(std::ostream & os, SYSTEM const & s)
+    {
+      for (auto const & prop : s.properties().properties())
+        tchecker_output_property(os, s, prop);
+    }
+
+
 } // end of namespace tchecker
 
 #endif // TCHECKER_SYSTEM_OUTPUT_HH
