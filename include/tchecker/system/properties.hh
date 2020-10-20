@@ -66,15 +66,16 @@ namespace tchecker {
 
      protected:
       property_id_t id_;
-      std::string const name_;
-      std::string const kind_;
-      std::string const formula_;
+      std::string name_;
+      std::string kind_;
+      std::string formula_;
     };
+
 
     class properties_t {
      public:
       properties_t() : index_(), properties_() {}
-      properties_t(properties_t &props) = default;
+      properties_t(properties_t const &props) = default;
       properties_t(properties_t &&props) = default;
       ~properties_t() = default;
 
