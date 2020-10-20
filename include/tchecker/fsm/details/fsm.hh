@@ -291,7 +291,7 @@ namespace tchecker {
                                  }
                                return false;
                            },
-                        intvars_val, invariant, _throw_clkreset);
+                        intvars_val, invariant, clock_reset_throw_container);
           }
           catch (std::exception const & e) {
             throw std::runtime_error(e.what()
@@ -329,7 +329,7 @@ namespace tchecker {
                                     }
                                   return false;
                               },
-                              intvars_val, guard, _throw_clkreset);
+                              intvars_val, guard, clock_reset_throw_container);
           }
           catch (std::exception const & e) {
             throw std::runtime_error(e.what()
@@ -368,7 +368,7 @@ namespace tchecker {
                                     }
                                   return false;
                               },
-                              intvars_val, _throw_clkconstr, clkreset);
+                              intvars_val, clock_constraint_throw_container, clkreset);
           }
           catch (std::exception const & e) {
             throw std::runtime_error(e.what()
@@ -377,25 +377,8 @@ namespace tchecker {
                                                               this->_model.flattened_integer_variables().index())));
           }
         }
-        
-        /*!
-         \class throw_container_t
-         \brief A clock constraint container that throws when method push_back() is inovked
-         */
-        template <class CONTAINER>
-        class throw_container_t : public CONTAINER {
-        public:
-          template <class T>
-          void push_back(T && t) const
-          {
-            throw std::runtime_error("throw_container_t::push_back() called");
-          }
-        };
-        
-        
-        tchecker::vm_t _vm;                                                           /*!< Bytecode interpreter */
-        throw_container_t<tchecker::clock_constraint_container_t> _throw_clkconstr;  /*!< Throw clock constraint container */
-        throw_container_t<tchecker::clock_reset_container_t> _throw_clkreset;        /*!< Throw clock reset container */
+
+       tchecker::vm_t _vm;                                                           /*!< Bytecode interpreter */
       };
       
     } // end of namespace details
