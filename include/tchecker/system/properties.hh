@@ -64,6 +64,12 @@ namespace tchecker {
         return formula_;
       }
 
+      void output (std::ostream & out) const {
+        out << "property : " << name_
+            << " { " << kind_ << " : " << formula_ << " }"
+            << " # id=" << id_;
+      }
+
      protected:
       property_id_t id_;
       std::string name_;
