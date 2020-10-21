@@ -618,62 +618,62 @@ namespace tchecker {
        \brief Visitors
        \post All declarations have been cloned and inserted into sysdecl
        */
-      virtual void visit(tchecker::parsing::system_declaration_t const & d)
+      virtual void visit(tchecker::parsing::system_declaration_t const & d) override
       {
         for (auto const * decl : d.declarations())
           decl->visit(*this);
       }
       
       
-      virtual void visit(tchecker::parsing::clock_declaration_t const & d)
+      virtual void visit(tchecker::parsing::clock_declaration_t const & d) override
       {
         auto const * d2 = dynamic_cast<tchecker::parsing::clock_declaration_t const *>(d.clone());
         _sysdecl.insert_clock_declaration(d2);
       }
       
       
-      virtual void visit(int_declaration_t const & d)
+      virtual void visit(int_declaration_t const & d) override
       {
         auto const * d2 = dynamic_cast<tchecker::parsing::int_declaration_t const *>(d.clone());
         _sysdecl.insert_int_declaration(d2);
       }
       
-      void visit(property_declaration_t const & d) override
+      virtual void visit(property_declaration_t const & d) override
       {
         auto const * d2 = dynamic_cast<tchecker::parsing::property_declaration_t const *>(d.clone());
         _sysdecl.insert_property_declaration(d2);
       }
 
 
-      virtual void visit(process_declaration_t const & d)
+      virtual void visit(process_declaration_t const & d) override
       {
         auto const * d2 = dynamic_cast<tchecker::parsing::process_declaration_t const *>(d.clone());
         _sysdecl.insert_process_declaration(d2);
       }
       
       
-      virtual void visit(event_declaration_t const & d)
+      virtual void visit(event_declaration_t const & d) override
       {
         auto const * d2 = dynamic_cast<tchecker::parsing::event_declaration_t const *>(d.clone());
         _sysdecl.insert_event_declaration(d2);
       }
       
       
-      virtual void visit(location_declaration_t const & d)
+      virtual void visit(location_declaration_t const & d) override
       {
         auto const * d2 = dynamic_cast<tchecker::parsing::location_declaration_t const *>(d.clone());
         _sysdecl.insert_location_declaration(d2);
       }
       
       
-      virtual void visit(edge_declaration_t const & d)
+      virtual void visit(edge_declaration_t const & d) override
       {
         auto const * d2 = dynamic_cast<tchecker::parsing::edge_declaration_t const *>(d.clone());
         _sysdecl.insert_edge_declaration(d2);
       }
       
       
-      virtual void visit(sync_declaration_t const & d)
+      virtual void visit(sync_declaration_t const & d) override
       {
         auto const * d2 = dynamic_cast<tchecker::parsing::sync_declaration_t const *>(d.clone());
         _sysdecl.insert_sync_declaration(d2);

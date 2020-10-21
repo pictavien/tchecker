@@ -98,7 +98,7 @@ namespace tchecker {
        \param expr : expression
        \post _typed_expr points to a typed clone of expr
        */
-      virtual void visit(tchecker::int_expression_t const & expr)
+      virtual void visit(tchecker::int_expression_t const & expr) override
       {
         _typed_expr = new tchecker::typed_int_expression_t(tchecker::EXPR_TYPE_INTTERM, expr.value());
       }
@@ -109,7 +109,7 @@ namespace tchecker {
        \param expr : expression
        \post _typed_expr points to a typed clone of expr
        */
-      virtual void visit(tchecker::var_expression_t const & expr)
+      virtual void visit(tchecker::var_expression_t const & expr) override
       {
         // variable type, id and size
         auto type_id_size = typecheck_variable(expr.name());
@@ -145,7 +145,7 @@ namespace tchecker {
        \note array expression on variables of size 1 are well typed
        \note out-of-bounds access are not checked
        */
-      virtual void visit(tchecker::array_expression_t const & expr)
+      virtual void visit(tchecker::array_expression_t const & expr) override
       {
         // Typecheck variable
         expr.variable().visit(*this);
@@ -193,7 +193,7 @@ namespace tchecker {
        \param expr : expression
        \post _typed_expr points to a typed clone of expr
        */
-      virtual void visit(tchecker::par_expression_t const & expr)
+      virtual void visit(tchecker::par_expression_t const & expr) override
       {
         // Sub expression
         expr.expr().visit(*this);
@@ -218,7 +218,7 @@ namespace tchecker {
        \param expr : expression
        \post _typed_expr points to a typed clone of expr
        */
-      virtual void visit(tchecker::binary_expression_t const & expr)
+      virtual void visit(tchecker::binary_expression_t const & expr) override
       {
         // Operands
         expr.left_operand().visit(*this);
@@ -261,7 +261,7 @@ namespace tchecker {
        \param expr : expression
        \post _typed_expr points to a typed clone of expr
        */
-      virtual void visit(tchecker::unary_expression_t const & expr)
+      virtual void visit(tchecker::unary_expression_t const & expr) override
       {
         // Operand
         expr.operand().visit(*this);
@@ -285,7 +285,7 @@ namespace tchecker {
        \param expr : expression
        \post _typed_expr points to a typed clone of expr
        */
-      virtual void visit(tchecker::ite_expression_t const & expr)
+      virtual void visit(tchecker::ite_expression_t const & expr) override
       {
         // Operands
         expr.condition().visit(*this);
