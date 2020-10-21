@@ -325,7 +325,7 @@ namespace tchecker {
          \brief Visitor
          \post left and right operand have been visited if expr is a logical-and expression
          */
-        virtual void visit(tchecker::typed_binary_expression_t const & expr)
+        virtual void visit(tchecker::typed_binary_expression_t const & expr) override
         {
           if (expr.binary_operator() == tchecker::EXPR_OP_LAND)
           {
@@ -338,7 +338,7 @@ namespace tchecker {
          \brief Visitor
          \post sub-expression has been visited
          */
-        virtual void visit(tchecker::typed_par_expression_t const & expr)
+        virtual void visit(tchecker::typed_par_expression_t const & expr) override
         {
           expr.expr().visit(*this);
         }
@@ -350,7 +350,7 @@ namespace tchecker {
          upper-bound guard (x<c, x<=c, x==c), then a constraint on clock upper bounds has been added to _solver for every clock
          x (x could be an array) w.r.t. bound c (using method add_upper_bound_guard).
          */
-        virtual void visit(tchecker::typed_simple_clkconstr_expression_t const & expr)
+        virtual void visit(tchecker::typed_simple_clkconstr_expression_t const & expr) override
         {
           tchecker::range_t<tchecker::clock_id_t> clocks = tchecker::extract_lvalue_variable_ids(expr.clock());
           tchecker::integer_t bound = tchecker::const_evaluate(expr.bound(), tchecker::clockbounds::MAX_BOUND);
@@ -374,18 +374,18 @@ namespace tchecker {
          \brief Visitor
          \throw std::runtime_error : as diagonal constraints are not supported by diagonal-free solver
          */
-        virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr)
+        virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr) override
         {
           throw std::runtime_error("unsupported diagonal constraints");
         }
         
         // Other visitors on expressions
-        virtual void visit(tchecker::typed_int_expression_t const &) {}
-        virtual void visit(tchecker::typed_var_expression_t const &) {}
-        virtual void visit(tchecker::typed_bounded_var_expression_t const &) {}
-        virtual void visit(tchecker::typed_array_expression_t const &) {}
-        virtual void visit(tchecker::typed_unary_expression_t const &) {}
-        virtual void visit(tchecker::typed_ite_expression_t const &) {}
+        virtual void visit(tchecker::typed_int_expression_t const &) override {}
+        virtual void visit(tchecker::typed_var_expression_t const &) override {}
+        virtual void visit(tchecker::typed_bounded_var_expression_t const &) override {}
+        virtual void visit(tchecker::typed_array_expression_t const &) override {}
+        virtual void visit(tchecker::typed_unary_expression_t const &) override {}
+        virtual void visit(tchecker::typed_ite_expression_t const &) override {}
         void visit(tchecker::typed_location_id_expression_t const &) override {}
         void visit(tchecker::typed_location_label_expression_t const &) override {}
         void visit(tchecker::typed_event_expression_t const &) override {}
@@ -394,7 +394,7 @@ namespace tchecker {
          \brief Visitor
          \post first and second statements have been visited
          */
-        virtual void visit(tchecker::typed_sequence_statement_t const & stmt)
+        virtual void visit(tchecker::typed_sequence_statement_t const & stmt) override
         {
           stmt.first().visit(*this);
           stmt.second().visit(*this);
@@ -404,7 +404,7 @@ namespace tchecker {
          \brief Visitor
          \post condition expression, then_stmt, else_stmt are visited
          */
-        virtual void visit(tchecker::typed_if_statement_t const & stmt)
+        virtual void visit(tchecker::typed_if_statement_t const & stmt) override
         {
           stmt.condition().visit(*this);
           stmt.then_stmt().visit(*this);
@@ -415,7 +415,7 @@ namespace tchecker {
          \brief Visitor
          \post condition expression and stmt statement are visited
          */
-        virtual void visit(tchecker::typed_while_statement_t const & stmt)
+        virtual void visit(tchecker::typed_while_statement_t const & stmt) override
         {
           stmt.condition().visit(*this);
           stmt.statement().visit(*this);
@@ -425,14 +425,14 @@ namespace tchecker {
          \brief Visitor
          \post No constraint generated for clock assignment x:=c
          */
-        virtual void visit(tchecker::typed_int_to_clock_assign_statement_t const &) {}
+        virtual void visit(tchecker::typed_int_to_clock_assign_statement_t const &) override {}
         
         /*!
          \brief Visitor
          \post For assignment x:=y, a constraint for every clock x (x could be an array) and every clock y (y could be an array)
          has been added to _solver using method add_assignment
          */
-        virtual void visit(tchecker::typed_clock_to_clock_assign_statement_t const & stmt)
+        virtual void visit(tchecker::typed_clock_to_clock_assign_statement_t const & stmt) override
         {
           tchecker::range_t<tchecker::clock_id_t> lclocks = tchecker::extract_lvalue_variable_ids(stmt.lclock());
           tchecker::range_t<tchecker::clock_id_t> rclocks = tchecker::extract_lvalue_variable_ids(stmt.rclock());
@@ -447,7 +447,7 @@ namespace tchecker {
          \post For assignment x:=y+c, a constraint for every clock x (x could be an array) and every clock y (y could be an array)
          using value c has been added to _solver using method add_assignment
          */
-        virtual void visit(tchecker::typed_sum_to_clock_assign_statement_t const & stmt)
+        virtual void visit(tchecker::typed_sum_to_clock_assign_statement_t const & stmt) override
         {
           tchecker::range_t<tchecker::clock_id_t> lclocks = tchecker::extract_lvalue_variable_ids(stmt.lclock());
           tchecker::range_t<tchecker::clock_id_t> rclocks = tchecker::extract_lvalue_variable_ids(stmt.rclock());
@@ -459,10 +459,10 @@ namespace tchecker {
         }
         
         // Other visitors on statements
-        virtual void visit(tchecker::typed_nop_statement_t const &) {}
-        virtual void visit(tchecker::typed_assign_statement_t const &) {}
-        virtual void visit(tchecker::typed_local_var_statement_t const & stmt) {}
-        virtual void visit(tchecker::typed_local_array_statement_t const & stmt) {}
+        virtual void visit(tchecker::typed_nop_statement_t const &) override {}
+        virtual void visit(tchecker::typed_assign_statement_t const &) override {}
+        virtual void visit(tchecker::typed_local_var_statement_t const & stmt) override {}
+        virtual void visit(tchecker::typed_local_array_statement_t const & stmt) override {}
 
        protected:
         tchecker::loc_id_t _src;                                  /*!< Source location ID */

@@ -104,7 +104,7 @@ namespace tchecker {
     /*!
      \brief Build system and visit nested declarations
      */
-    virtual void visit(tchecker::parsing::system_declaration_t const & d)
+    virtual void visit(tchecker::parsing::system_declaration_t const & d) override
     {
       try {
         _system = new SYSTEM(d.name());
@@ -126,7 +126,7 @@ namespace tchecker {
     /*!
      \brief Add process
      */
-    virtual void visit(tchecker::parsing::process_declaration_t const & d)
+    virtual void visit(tchecker::parsing::process_declaration_t const & d) override
     {
       try {
         _system->add_process(d.name());
@@ -140,7 +140,7 @@ namespace tchecker {
     /*!
      \brief Add event
      */
-    virtual void visit(tchecker::parsing::event_declaration_t const & d)
+    virtual void visit(tchecker::parsing::event_declaration_t const & d) override
     {
       try {
         _system->add_event(d.name());
@@ -154,7 +154,7 @@ namespace tchecker {
     /*!
      \brief Add property
      */
-    void visit(tchecker::parsing::property_declaration_t const & d) override
+    virtual void visit(tchecker::parsing::property_declaration_t const & d) override
     {
       try {
         _system->add_property(d.name(), d.kind(), d.formula());
@@ -188,7 +188,7 @@ namespace tchecker {
     /*!
      \brief Add synchronization
      */
-    virtual void visit(tchecker::parsing::sync_declaration_t const & d)
+    virtual void visit(tchecker::parsing::sync_declaration_t const & d) override
     {
       auto syncs = d.sync_constraints();
       

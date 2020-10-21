@@ -92,7 +92,7 @@ namespace tchecker {
        \param expr : expression
        \post set _value to expr's value
        */
-      virtual void visit(tchecker::int_expression_t const & expr)
+      virtual void visit(tchecker::int_expression_t const & expr) override
       {
         _value = expr.value();
       }
@@ -102,7 +102,7 @@ namespace tchecker {
        \param expr : expression
        \throw std::invalid_argument
        */
-      virtual void visit(tchecker::var_expression_t const & expr)
+      virtual void visit(tchecker::var_expression_t const & expr) override
       {
         throw std::invalid_argument("not a constant expression");
       }
@@ -112,7 +112,7 @@ namespace tchecker {
        \param expr : expression
        \throw std::invalid_argument
        */
-      virtual void visit(tchecker::array_expression_t const & expr)
+      virtual void visit(tchecker::array_expression_t const & expr) override
       {
         throw std::invalid_argument("not a constant expression");
       }
@@ -122,7 +122,7 @@ namespace tchecker {
        \param expr : expression
        \post visits expr's sub expression
        */
-      virtual void visit(tchecker::par_expression_t const & expr)
+      virtual void visit(tchecker::par_expression_t const & expr) override
       {
         expr.expr().visit(*this);
       }
@@ -132,7 +132,7 @@ namespace tchecker {
        \param expr : expression
        \throw set _value to result of applying unary operator to recursive evaluation of operand expression
        */
-      virtual void visit(tchecker::unary_expression_t const & expr)
+      virtual void visit(tchecker::unary_expression_t const & expr) override
       {
         expr.operand().visit(*this);
         
@@ -148,7 +148,7 @@ namespace tchecker {
        \param expr : expression
        \throw set _value to result of applying binary operator to recursive evaluation of operand expressions
        */
-      virtual void visit(tchecker::binary_expression_t const & expr)
+      virtual void visit(tchecker::binary_expression_t const & expr) override
       {
         expr.left_operand().visit(*this);
         tchecker::integer_t left = _value;
@@ -179,7 +179,7 @@ namespace tchecker {
        \throw set _value to result of applying if-then-else operator to
               recursive evaluation of operand expressions
        */
-      virtual void visit(tchecker::ite_expression_t const & expr)
+      virtual void visit(tchecker::ite_expression_t const & expr) override
       {
         expr.condition ().visit(*this);
         if (_value)
@@ -188,12 +188,12 @@ namespace tchecker {
           expr.else_value ().visit(*this);
       }
 
-      void visit(tchecker::location_expression_t const & expr) override
+      virtual void visit(tchecker::location_expression_t const & expr) override
       {
         throw std::invalid_argument("not a constant expression");
       }
 
-      void visit(tchecker::event_expression_t const & expr) override
+      virtual void visit(tchecker::event_expression_t const & expr) override
       {
         throw std::invalid_argument("not a constant expression");
       }
@@ -331,7 +331,7 @@ namespace tchecker {
        \brief Visitor
        \post first and size have been set to the range of IDs in expr
        */
-      virtual void visit(tchecker::typed_var_expression_t const & expr)
+      virtual void visit(tchecker::typed_var_expression_t const & expr) override
       {
         _first = expr.id();
         _size = expr.size();
@@ -342,7 +342,7 @@ namespace tchecker {
        \brief Visitor
        \post first and size have been set to the range of IDs in expr
        */
-      virtual void visit(tchecker::typed_bounded_var_expression_t const & expr)
+      virtual void visit(tchecker::typed_bounded_var_expression_t const & expr) override
       {
         _first = expr.id();
         _size = expr.size();
@@ -353,7 +353,7 @@ namespace tchecker {
        \brief Visitor
        \post expr's variable expression has been visited
        */
-      virtual void visit(tchecker::typed_array_expression_t const & expr)
+      virtual void visit(tchecker::typed_array_expression_t const & expr) override
       {
         expr.variable().visit(*this);
         // adjust the range of IDs if the offset of expr can be statically computed
@@ -370,52 +370,52 @@ namespace tchecker {
       }
       
       // Other visitors
-      virtual void visit(tchecker::typed_int_expression_t const &)
+      virtual void visit(tchecker::typed_int_expression_t const &) override
       {
         throw std::invalid_argument("not an lvalue expression");
       }
       
-      virtual void visit(tchecker::typed_par_expression_t const &)
+      virtual void visit(tchecker::typed_par_expression_t const &) override
       {
         throw std::invalid_argument("not an lvalue expression");
       }
       
-      virtual void visit(tchecker::typed_binary_expression_t const &)
+      virtual void visit(tchecker::typed_binary_expression_t const &) override
       {
         throw std::invalid_argument("not an lvalue expression");
       }
       
-      virtual void visit(tchecker::typed_unary_expression_t const &)
+      virtual void visit(tchecker::typed_unary_expression_t const &) override
       {
         throw std::invalid_argument("not an lvalue expression");
       }
       
-      virtual void visit(tchecker::typed_simple_clkconstr_expression_t const &)
+      virtual void visit(tchecker::typed_simple_clkconstr_expression_t const &) override
       {
         throw std::invalid_argument("not an lvalue expression");
       }
       
-      virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const &)
+      virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const &) override
       {
         throw std::invalid_argument("not an lvalue expression");
       }
 
-      virtual void visit(tchecker::typed_ite_expression_t const &)
+      virtual void visit(tchecker::typed_ite_expression_t const &) override
       {
         throw std::invalid_argument("not an lvalue expression");
       }
 
-      void visit(tchecker::typed_location_id_expression_t const & expr) override
+      virtual void visit(tchecker::typed_location_id_expression_t const & expr) override
       {
         throw std::invalid_argument("not a lvalue expression");
       }
 
-      void visit(tchecker::typed_location_label_expression_t const & expr) override
+      virtual void visit(tchecker::typed_location_label_expression_t const & expr) override
       {
         throw std::invalid_argument("not a lvalue expression");
       }
 
-      void visit(tchecker::typed_event_expression_t const & expr) override
+      virtual void visit(tchecker::typed_event_expression_t const & expr) override
       {
         throw std::invalid_argument("not a lvalue expression");
       }
@@ -521,71 +521,71 @@ namespace tchecker {
       /*!
        \brief Nothing to do (not an array)
        */
-      virtual void visit(tchecker::typed_var_expression_t const & expr)
+      virtual void visit(tchecker::typed_var_expression_t const & expr) override
       {}
       
       /*!
        \brief Nothing to do (not an array)
        */
-      virtual void visit(tchecker::typed_bounded_var_expression_t const & expr)
+      virtual void visit(tchecker::typed_bounded_var_expression_t const & expr) override
       {}
       
       /*!
        \brief extract variable IDs from array offset
        */
-      virtual void visit(tchecker::typed_array_expression_t const & expr)
+      virtual void visit(tchecker::typed_array_expression_t const & expr) override
       {
         tchecker::extract_variables(expr.offset(), _clocks, _intvars);
       }
       
       /* Other visitors (throw: not an lvalue expression) */
       
-      virtual void visit(tchecker::typed_int_expression_t const &)
+      virtual void visit(tchecker::typed_int_expression_t const &) override
       {
         throw std::invalid_argument("not an lvalue expression");
       }
       
-      virtual void visit(tchecker::typed_par_expression_t const & expr)
+      virtual void visit(tchecker::typed_par_expression_t const & expr) override
       {
         throw std::invalid_argument("not an lvalue expression");
       }
       
-      virtual void visit(tchecker::typed_binary_expression_t const & expr)
+      virtual void visit(tchecker::typed_binary_expression_t const & expr) override
       {
         throw std::invalid_argument("not an lvalue expression");
       }
       
-      virtual void visit(tchecker::typed_unary_expression_t const & expr)
+      virtual void visit(tchecker::typed_unary_expression_t const & expr) override
       {
         throw std::invalid_argument("not an lvalue expression");
       }
       
-      virtual void visit(tchecker::typed_simple_clkconstr_expression_t const & expr)
+      virtual void visit(tchecker::typed_simple_clkconstr_expression_t const & expr) override
       {
         throw std::invalid_argument("not an lvalue expression");
       }
       
-      virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr)
+      virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr) override
       {
         throw std::invalid_argument("not an lvalue expression");
       }
 
-      virtual void visit(tchecker::typed_ite_expression_t const & expr)
+      virtual void visit(tchecker::typed_ite_expression_t const & expr) override
       {
         throw std::invalid_argument("not an lvalue expression");
       }
 
-      void visit(tchecker::typed_location_id_expression_t const & expr) override
+      virtual void visit(tchecker::typed_location_id_expression_t const & expr) override
       {
         throw std::invalid_argument("not a lvalue expression");
       }
 
-      void visit(tchecker::typed_location_label_expression_t const & expr) override
+      virtual void visit(tchecker::typed_location_label_expression_t const & expr) override
       {
         throw std::invalid_argument("not a lvalue expression");
       }
 
-      void visit(tchecker::typed_event_expression_t const & expr) override
+      virtual void visit(tchecker::typed_event_expression_t const & expr) override
       {
         throw std::invalid_argument("not a lvalue expression");
       }
@@ -655,7 +655,7 @@ namespace tchecker {
       /*!
        \brief Add (expr.id() |-> _pid) to the map corresponding to expr.type()
        */
-      virtual void visit(tchecker::typed_var_expression_t const & expr)
+      virtual void visit(tchecker::typed_var_expression_t const & expr) override
       {
         extract_variable_with_type(expr.id(), expr.type());
       }
@@ -663,7 +663,7 @@ namespace tchecker {
       /*!
        \brief Add (expr.id() |-> _pid) to the map corresponding to expr.type()
        */
-      virtual void visit(tchecker::typed_bounded_var_expression_t const & expr)
+      virtual void visit(tchecker::typed_bounded_var_expression_t const & expr) override
       {
         extract_variable_with_type(expr.id(), expr.type());
       }
@@ -673,7 +673,7 @@ namespace tchecker {
        corresponding to expr.type(), otherwise, add add (expr.id()+k |-> _pid) to the right map for all k in the
        domain of expr.id()
        */
-      virtual void visit(tchecker::typed_array_expression_t const & expr)
+      virtual void visit(tchecker::typed_array_expression_t const & expr) override
       {
         // add variables from offset
         expr.offset().visit(*this);
@@ -693,52 +693,52 @@ namespace tchecker {
       
       /* Other visitors (recursion) */
       
-      virtual void visit(tchecker::typed_int_expression_t const &) {}
+      virtual void visit(tchecker::typed_int_expression_t const &) override {}
       
-      virtual void visit(tchecker::typed_par_expression_t const & expr)
+      virtual void visit(tchecker::typed_par_expression_t const & expr) override
       {
         expr.expr().visit(*this);
       }
       
-      virtual void visit(tchecker::typed_binary_expression_t const & expr)
+      virtual void visit(tchecker::typed_binary_expression_t const & expr) override
       {
         expr.left_operand().visit(*this);
         expr.right_operand().visit(*this);
       }
       
-      virtual void visit(tchecker::typed_unary_expression_t const & expr)
+      virtual void visit(tchecker::typed_unary_expression_t const & expr) override
       {
         expr.operand().visit(*this);
       }
       
-      virtual void visit(tchecker::typed_simple_clkconstr_expression_t const & expr)
+      virtual void visit(tchecker::typed_simple_clkconstr_expression_t const & expr) override
       {
         expr.left_operand().visit(*this);
         expr.right_operand().visit(*this);
       }
       
-      virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr)
+      virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr) override
       {
         expr.left_operand().visit(*this);
         expr.right_operand().visit(*this);
       }
 
-      virtual void visit(tchecker::typed_ite_expression_t const & expr)
+      virtual void visit(tchecker::typed_ite_expression_t const & expr) override
       {
         expr.condition().visit(*this);
         expr.then_value().visit(*this);
         expr.else_value().visit(*this);
       }
 
-      void visit(tchecker::typed_location_id_expression_t const & expr) override
+      virtual void visit(tchecker::typed_location_id_expression_t const & expr) override
       {
       }
 
-      void visit(tchecker::typed_location_label_expression_t const & expr) override
+      virtual void visit(tchecker::typed_location_label_expression_t const & expr) override
       {
       }
 
-      void visit(tchecker::typed_event_expression_t const & expr) override
+      virtual void visit(tchecker::typed_event_expression_t const & expr) override
       {
       }
 

@@ -100,7 +100,7 @@ namespace tchecker
       /*
        VM_PUSH ID(expr.name())
        */
-      virtual void visit(tchecker::typed_var_expression_t const & expr)
+      virtual void visit(tchecker::typed_var_expression_t const & expr) override
       {
         if ((expr.type() != tchecker::EXPR_TYPE_CLKVAR) &&
             (expr.type() != tchecker::EXPR_TYPE_INTVAR) &&
@@ -121,7 +121,7 @@ namespace tchecker
        
        VM_PUSH ID(expr.name())
        */
-      virtual void visit(tchecker::typed_bounded_var_expression_t const & expr)
+      virtual void visit(tchecker::typed_bounded_var_expression_t const & expr) override
       {
         this->visit(dynamic_cast<tchecker::typed_var_expression_t const &>(expr));
       }
@@ -133,7 +133,7 @@ namespace tchecker
        VM_FAILNOTIN lowoffset(expr.variable()) highoffset(expr.variable())
        VM_SUM
        */
-      virtual void visit(tchecker::typed_array_expression_t const & expr)
+      virtual void visit(tchecker::typed_array_expression_t const & expr) override
       {
         if ((expr.type() != tchecker::EXPR_TYPE_CLKLVALUE) &&
             (expr.type() != tchecker::EXPR_TYPE_INTLVALUE) &&
@@ -158,34 +158,34 @@ namespace tchecker
       }
       
       
-      virtual void visit(tchecker::typed_int_expression_t const & expr)
+      virtual void visit(tchecker::typed_int_expression_t const & expr) override
       { not_supported (expr); }
       
-      virtual void visit(tchecker::typed_par_expression_t const & expr)
+      virtual void visit(tchecker::typed_par_expression_t const & expr) override
       { not_supported (expr); }
       
-      virtual void visit(tchecker::typed_binary_expression_t const & expr)
+      virtual void visit(tchecker::typed_binary_expression_t const & expr) override
       { not_supported (expr); }
       
-      virtual void visit(tchecker::typed_unary_expression_t const & expr)
+      virtual void visit(tchecker::typed_unary_expression_t const & expr) override
       { not_supported (expr); }
       
-      virtual void visit(tchecker::typed_simple_clkconstr_expression_t const & expr)
+      virtual void visit(tchecker::typed_simple_clkconstr_expression_t const & expr) override
       { not_supported (expr); }
       
-      virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr)
+      virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr) override
       { not_supported (expr); }
 
-      virtual void visit(tchecker::typed_ite_expression_t const & expr)
+      virtual void visit(tchecker::typed_ite_expression_t const & expr) override
       { not_supported (expr); }
 
-      void visit(tchecker::typed_location_id_expression_t const &expr) override
+      virtual void visit(tchecker::typed_location_id_expression_t const &expr) override
       { not_supported (expr); }
 
-      void visit(tchecker::typed_location_label_expression_t const &expr) override
+      virtual void visit(tchecker::typed_location_label_expression_t const &expr) override
       { not_supported (expr); }
 
-      void visit(tchecker::typed_event_expression_t const &expr) override
+      virtual void visit(tchecker::typed_event_expression_t const &expr) override
       { not_supported (expr); }
 
 
@@ -260,7 +260,7 @@ namespace tchecker
        VM_PUSH ID(expr.name())
        VM_VALUEAT
        */
-      virtual void visit(tchecker::typed_var_expression_t const & expr)
+      virtual void visit(tchecker::typed_var_expression_t const & expr) override
       {
         if ((expr.type() != tchecker::EXPR_TYPE_CLKVAR) &&
             (expr.type() != tchecker::EXPR_TYPE_INTVAR) &&
@@ -288,7 +288,7 @@ namespace tchecker
        VM_PUSH ID(expr.name())
        VM_VALUEAT
        */
-      virtual void visit(tchecker::typed_bounded_var_expression_t const & expr)
+      virtual void visit(tchecker::typed_bounded_var_expression_t const & expr) override
       {
         this->visit(dynamic_cast<tchecker::typed_var_expression_t const &>(expr));
       }
@@ -301,7 +301,7 @@ namespace tchecker
        VM_SUM
        VM_VALUEAT
        */
-      virtual void visit(tchecker::typed_array_expression_t const & expr)
+      virtual void visit(tchecker::typed_array_expression_t const & expr) override
       {
         if ((expr.type() != tchecker::EXPR_TYPE_CLKLVALUE) &&
             (expr.type() != tchecker::EXPR_TYPE_INTLVALUE) &&
@@ -323,7 +323,7 @@ namespace tchecker
       /*
        VM_PUSH expr.value()
        */
-      virtual void visit(tchecker::typed_int_expression_t const & expr)
+      virtual void visit(tchecker::typed_int_expression_t const & expr) override
       {
         if (expr.type() != tchecker::EXPR_TYPE_INTTERM)
           invalid_expression (expr, "a integer term");
@@ -337,7 +337,7 @@ namespace tchecker
       /*
        Bytecode of operand
        */
-      virtual void visit(tchecker::typed_par_expression_t const & expr)
+      virtual void visit(tchecker::typed_par_expression_t const & expr) override
       {
         if (expr.type() == tchecker::EXPR_TYPE_BAD)
           invalid_expression (expr, "a parenthesized");
@@ -350,7 +350,7 @@ namespace tchecker
       /*
        see compile_binary_expression
        */
-      virtual void visit(tchecker::typed_binary_expression_t const & expr)
+      virtual void visit(tchecker::typed_binary_expression_t const & expr) override
       {
         // LAND expression
         if (expr.binary_operator() == tchecker::EXPR_OP_LAND) {
@@ -379,7 +379,7 @@ namespace tchecker
       /*
        see compile_unary_expression
        */
-      virtual void visit(tchecker::typed_unary_expression_t const & expr)
+      virtual void visit(tchecker::typed_unary_expression_t const & expr) override
       {
         // NEG expresison
         if (expr.unary_operator() == tchecker::EXPR_OP_NEG) {
@@ -399,7 +399,7 @@ namespace tchecker
       /*
        see compile_clock_predicate
        */
-      virtual void visit(tchecker::typed_simple_clkconstr_expression_t const & expr)
+      virtual void visit(tchecker::typed_simple_clkconstr_expression_t const & expr) override
       {
         if (expr.type() != tchecker::EXPR_TYPE_CLKCONSTR_SIMPLE)
           invalid_expression (expr, "a simple clock constraint");
@@ -414,7 +414,7 @@ namespace tchecker
       /*
        see compile_clock_predicate
        */
-      virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr)
+      virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr) override
       {
         if (expr.type() != tchecker::EXPR_TYPE_CLKCONSTR_DIAGONAL)
           invalid_expression (expr, "a diagonal clock constraint");
@@ -426,7 +426,7 @@ namespace tchecker
       /*
        see compile_ite_expression
        */
-      virtual void visit(tchecker::typed_ite_expression_t const & expr)
+      virtual void visit(tchecker::typed_ite_expression_t const & expr) override
       {
         if (expr.type() != tchecker::EXPR_TYPE_INTTERM)
           invalid_expression (expr, "an if-then-else");
@@ -434,7 +434,7 @@ namespace tchecker
         compile_ite_expression(expr.condition (), expr.then_value (), expr.else_value ());
       }
 
-      void visit(tchecker::typed_location_id_expression_t const &expr) override
+      virtual void visit(tchecker::typed_location_id_expression_t const &expr) override
       {
         if (expr.type() != tchecker::EXPR_TYPE_LOCATION_ID_FORMULA)
           invalid_expression (expr, "a location formula");
@@ -444,7 +444,7 @@ namespace tchecker
         _bytecode_back_inserter = expr.location();
       }
 
-      void visit(tchecker::typed_location_label_expression_t const &expr) override
+      virtual void visit(tchecker::typed_location_label_expression_t const &expr) override
       {
         if (expr.type() != tchecker::EXPR_TYPE_LOCATION_LABEL_FORMULA)
           invalid_expression (expr, "a location formula");
@@ -454,7 +454,7 @@ namespace tchecker
         _bytecode_back_inserter = expr.label();
       }
 
-      void visit(tchecker::typed_event_expression_t const &expr) override
+      virtual void visit(tchecker::typed_event_expression_t const &expr) override
       {
         if (expr.type() != tchecker::EXPR_TYPE_EVENT_FORMULA)
           invalid_expression (expr, "an event formula");
@@ -762,50 +762,50 @@ namespace tchecker
       
       // Visitors
       
-      virtual void visit(tchecker::typed_bounded_var_expression_t const & expr)
+      virtual void visit(tchecker::typed_bounded_var_expression_t const & expr) override
       {
         _min = expr.min();
         _max = expr.max();
       }
       
       
-      virtual void visit(tchecker::typed_array_expression_t const & expr)
+      virtual void visit(tchecker::typed_array_expression_t const & expr) override
       {
         expr.variable().visit(*this);
       }
       
       
-      virtual void visit(tchecker::typed_int_expression_t const & expr)
+      virtual void visit(tchecker::typed_int_expression_t const & expr) override
       { not_supported (expr); }
       
-      virtual void visit(tchecker::typed_var_expression_t const & expr)
+      virtual void visit(tchecker::typed_var_expression_t const & expr) override
       { not_supported (expr); }
       
-      virtual void visit(tchecker::typed_par_expression_t const & expr)
+      virtual void visit(tchecker::typed_par_expression_t const & expr) override
       { not_supported (expr); }
       
-      virtual void visit(tchecker::typed_binary_expression_t const & expr)
+      virtual void visit(tchecker::typed_binary_expression_t const & expr) override
       { not_supported (expr); }
       
-      virtual void visit(tchecker::typed_unary_expression_t const & expr)
+      virtual void visit(tchecker::typed_unary_expression_t const & expr) override
       { not_supported (expr); }
       
-      virtual void visit(tchecker::typed_simple_clkconstr_expression_t const & expr)
+      virtual void visit(tchecker::typed_simple_clkconstr_expression_t const & expr) override
       { not_supported (expr); }
       
-      virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr)
+      virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr) override
       { not_supported (expr); }
 
-      virtual void visit(tchecker::typed_ite_expression_t const & expr)
+      virtual void visit(tchecker::typed_ite_expression_t const & expr) override
       { not_supported (expr); }
 
-      void visit(tchecker::typed_location_id_expression_t const &expr) override
+      virtual void visit(tchecker::typed_location_id_expression_t const &expr) override
       { not_supported (expr); }
 
-      void visit(tchecker::typed_location_label_expression_t const &expr) override
+      virtual void visit(tchecker::typed_location_label_expression_t const &expr) override
       { not_supported (expr); }
 
-      void visit(tchecker::typed_event_expression_t const &expr) override
+      virtual void visit(tchecker::typed_event_expression_t const &expr) override
       { not_supported (expr); }
 
      protected:
