@@ -45,11 +45,12 @@ namespace tchecker {
     os << (id1 != tchecker::zero_clock_id ? c.value() : - c.value());
     return os;
   }
-  
-  
-  
-  
-  /* clock_reset_t */
+
+  clock_throw_container_t<clock_constraint_container_t> clock_constraint_throw_container;
+
+
+
+    /* clock_reset_t */
   
   clock_reset_t::clock_reset_t(tchecker::clock_id_t left_id,
                                tchecker::clock_id_t right_id,
@@ -88,5 +89,7 @@ namespace tchecker {
       os << value;
     return os;
   }
-  
+
+  clock_throw_container_t<clock_reset_container_t> clock_reset_throw_container;
+
 } // end of namespace tchecker
