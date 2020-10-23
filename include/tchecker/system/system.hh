@@ -107,7 +107,6 @@ namespace tchecker {
      */
     using edge_t = EDGE;
 
-    using property_t = tchecker::property_t;
 
     /*!
      \brief Constructor
