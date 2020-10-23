@@ -84,7 +84,10 @@ namespace tchecker {
   
   enum tchecker::expression_type_t type_lnot(enum tchecker::expression_type_t type)
   {
-    if (integer_valued(type) || (type == tchecker::EXPR_TYPE_ATOMIC_PREDICATE))
+    if (integer_valued(type) || (type == tchecker::EXPR_TYPE_ATOMIC_PREDICATE) ||
+        (type == tchecker::EXPR_TYPE_LOCATION_ID_FORMULA) ||
+        (type == tchecker::EXPR_TYPE_LOCATION_LABEL_FORMULA) ||
+        (type == tchecker::EXPR_TYPE_EVENT_FORMULA))
       return tchecker::EXPR_TYPE_ATOMIC_PREDICATE;
     
     return tchecker::EXPR_TYPE_BAD;
