@@ -12,6 +12,7 @@
 #include <string>
 
 #include "tchecker/basictypes.hh"
+#include "tchecker/system/properties.hh"
 
 /*!
  \file output.hh
@@ -177,7 +178,7 @@ namespace tchecker {
    \post prop has been been output to os (property:id{ kind : formula })
    */
   template <class SYSTEM>
-  void tchecker_output_property(std::ostream & os, SYSTEM const & s, typename SYSTEM::property_t const & prop)
+  void tchecker_output_property(std::ostream & os, SYSTEM const & s, tchecker::property_t const & prop)
   {
     os << "property:" << prop.name() << "{ " << prop.kind() << " : " << prop.formula() << "}";
   }
