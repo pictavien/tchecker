@@ -28,13 +28,6 @@ namespace tchecker {
   namespace covreach {
     
     /*!
-     \brief Type of accepting condition
-     */
-    template <class NODE_PTR>
-    using accepting_condition_t = std::function<bool(NODE_PTR const &)>;
-    
-    
-    /*!
      \brief Type of verdict
      */
     enum outcome_t {
@@ -79,7 +72,7 @@ namespace tchecker {
        \note this algorithm may not terminate if graph is not finite
        */
       std::tuple<enum tchecker::covreach::outcome_t, tchecker::covreach::stats_t>
-      run(TS & ts, GRAPH & graph, tchecker::covreach::accepting_condition_t<node_ptr_t> accepting)
+      run(TS & ts, GRAPH & graph, tchecker::covreach::accepting_condition_t<node_ptr_t> &accepting)
       {
         tchecker::covreach::builder_t<TS, ts_allocator_t> builder(ts, graph.ts_allocator());
         waiting_t waiting;

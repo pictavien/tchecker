@@ -8,6 +8,7 @@
 #ifndef TCHECKER_ALGORITHMS_COVREACH_RUN_HH
 #define TCHECKER_ALGORITHMS_COVREACH_RUN_HH
 
+#include <tchecker/system/output.hh>
 #include "tchecker/algorithms/covreach/accepting.hh"
 #include "tchecker/algorithms/covreach/algorithm.hh"
 #include "tchecker/algorithms/covreach/cover.hh"
@@ -225,24 +226,45 @@ namespace tchecker {
                tchecker::log_t & log)
       {
         using model_t = typename ALGORITHM_MODEL::model_t;
+        using system_t = typename model_t::system_t;
         using ts_t = typename ALGORITHM_MODEL::ts_t;
         using graph_t = typename ALGORITHM_MODEL::graph_t;
         using node_ptr_t = typename ALGORITHM_MODEL::node_ptr_t;
         using state_predicate_t = typename ALGORITHM_MODEL::state_predicate_t;
         using cover_node_t = COVER_NODE<node_ptr_t, state_predicate_t>;
-        
+        using accepting_condition_ptr_t = std::unique_ptr<accepting_condition_t<node_ptr_t>>;
+
         model_t model(sysdecl, log);
         ts_t ts(model);
         cover_node_t cover_node(ALGORITHM_MODEL::state_predicate_args(model), ALGORITHM_MODEL::zone_predicate_args(model));
-        
-        tchecker::label_index_t label_index(model.system().labels());
-        for (std::string const & label : options.accepting_labels()) {
-          if (label_index.find_value(label) == label_index.end_value_map())
-            label_index.add(label);
-        }
-        
-        tchecker::covreach::accepting_labels_t<node_ptr_t> accepting_labels(label_index, options.accepting_labels());
-        
+
+        accepting_condition_ptr_t accept (nullptr);
+        if (options.labels_are_properties())
+          {
+            std::vector<tchecker::property_t> props;
+            auto properties = model.system().properties();
+            for (std::string const & label : options.accepting_labels()) {
+               property_t const *p = properties.get (label);
+               if (p == nullptr)
+                 throw std::runtime_error("unknown property label " + label);
+               if(p->kind() == "atomic")
+                 props.emplace_back(*p);
+            }
+            accept = std::make_unique<tchecker::covreach::accepting_properties_t<node_ptr_t,system_t>>(model.system(), props, log);
+          }
+        else
+          {
+            tchecker::label_index_t label_index(model.system().labels());
+            for (std::string const & label : options.accepting_labels()) {
+              if (label_index.find_value(label) == label_index.end_value_map())
+                label_index.add(label);
+            }
+            accept = std::make_unique<tchecker::covreach::accepting_labels_t<node_ptr_t>>(label_index,options.accepting_labels());
+          }
+
+//        tchecker::covreach::accepting_labels_t<node_ptr_t> accepting_labels(label_index, options.accepting_labels());
+//        tchecker::covreach::accepting_properties_t<node_ptr_t,system_t> accepting_properties(model.system(), log);
+
         tchecker::gc_t gc;
         
         graph_t graph(gc,
@@ -260,7 +282,9 @@ namespace tchecker {
         tchecker::covreach::algorithm_t<ts_t, graph_t, WAITING> algorithm;
         
         try {
-          std::tie(outcome, stats) = algorithm.run(ts, graph, accepting_labels);
+          //std::tie(outcome, stats) = algorithm.run(ts, graph, accepting_labels);
+          //std::tie(outcome, stats) = algorithm.run(ts, graph, accepting_properties);
+          std::tie(outcome, stats) = algorithm.run(ts, graph, *accept);
         }
         catch (...) {
           gc.stop();
