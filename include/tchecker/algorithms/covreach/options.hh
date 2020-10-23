@@ -103,7 +103,8 @@ namespace tchecker {
       _search_order(tchecker::covreach::options_t::DFS),
       _block_size(10000),
       _nodes_table_size(65536),
-      _stats(0)
+      _stats(0),
+      _labels_are_properties(false)
       {
         auto it = range.begin(), end = range.end();
         for ( ; it != end; ++it )
@@ -196,6 +197,12 @@ namespace tchecker {
       bool stats() const;
       
       /*!
+       \brief Accessor
+       \return true if labels are interpreted as properties identifiers.
+       */
+      bool labels_are_properties() const;
+
+      /*!
        \brief Check that mandatory options have been set
        \param log : a logging facility
        \post All errors and warnings have been reported to log
@@ -205,7 +212,7 @@ namespace tchecker {
       /*!
        \brief Short options string (getopt_long format)
        */
-      static constexpr char const * const getopt_long_options = "c:f:hl:m:o:s:S";
+      static constexpr char const * const getopt_long_options = "c:f:hl:m:o:s:Sp";
       
       /*!
        \brief Long options (getopt_long format)
@@ -216,6 +223,7 @@ namespace tchecker {
         {"format",       required_argument, 0, 'f'},
         {"help",         no_argument,       0, 'h'},
         {"labels",       required_argument, 0, 'l'},
+        {"properties",   no_argument,       0, 'p'},
         {"model",        required_argument, 0, 'm'},
         {"output",       required_argument, 0, 'o'},
         {"search-order", required_argument, 0, 's'},
@@ -270,7 +278,7 @@ namespace tchecker {
        An error has been reported to log if value is not admissible.
        */
       void set_accepting_labels(std::string const & value, tchecker::log_t & log);
-      
+
       /*!
        \brief Set algorithm model
        \param value : option value
@@ -348,6 +356,14 @@ namespace tchecker {
        */
       void set_stats(std::string const & value, tchecker::log_t & log);
       
+      /*!
+       \brief Set labels_are_properties flag
+       \param value : option value
+       \param log : logging facility
+       \post labels_are_properties flag has been set
+       */
+      void set_labels_are_properties(std::string const & value, tchecker::log_t & log);
+
       enum node_covering_t _node_covering;         /*!< Node covering */
       enum output_format_t _output_format;         /*!< Output format */
       std::vector<std::string> _accepting_labels;  /*!< Accepting labels */
@@ -357,6 +373,7 @@ namespace tchecker {
       std::size_t _block_size;                     /*!< Size of allocation blocks */
       std::size_t _nodes_table_size;               /*!< Size of nodes table */
       unsigned _stats : 1;                         /*!< Statistics */
+      bool _labels_are_properties;                 /*!< Labels are properties */
     };
     
   } // end of namespace covreach

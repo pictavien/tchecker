@@ -25,7 +25,8 @@ namespace tchecker {
     _search_order(std::move(options._search_order)),
     _block_size(std::move(options._block_size)),
     _nodes_table_size(std::move(options._nodes_table_size)),
-    _stats(options._stats)
+    _stats(options._stats),
+    _labels_are_properties(options._labels_are_properties)
     {
       options._os = nullptr;
     }
@@ -52,6 +53,7 @@ namespace tchecker {
         _block_size = options._block_size;
         _nodes_table_size = options._nodes_table_size;
         _stats = options._stats;
+        _labels_are_properties = options._labels_are_properties;
       }
       return *this;
     }
@@ -110,7 +112,11 @@ namespace tchecker {
       return (_stats == 1);
     }
     
-    
+    bool options_t::labels_are_properties () const
+    {
+      return _labels_are_properties;
+    }
+
     void options_t::set_option(std::string const & key, std::string const & value, tchecker::log_t & log)
     {
       if (key == "c")
@@ -133,6 +139,8 @@ namespace tchecker {
         set_nodes_table_size(value, log);
       else if (key == "S")
         set_stats(value, log);
+      else if (key == "p")
+        set_labels_are_properties(value, log);
       else
         log.warning("Unknown command line option " + key);
     }
@@ -323,7 +331,12 @@ namespace tchecker {
       _stats = 1;
     }
     
-    
+    void options_t::set_labels_are_properties (const std::string &value, tchecker::log_t &log)
+    {
+      _labels_are_properties = true;
+    }
+
+
     void options_t::check_mandatory_options(tchecker::log_t & log) const
     {
       if (_algorithm_model == UNKNOWN)
@@ -342,10 +355,11 @@ namespace tchecker {
       os << "-f (dot|raw)     output format (graphviz DOT format or raw format)" << std::endl;
       os << "-h               this help screen" << std::endl;
       os << "-l labels        accepting labels, where labels is a column-separated list of identifiers" << std::endl;
+      os << "-p               labels are interpreted as identifiers of properties declared in the input model " << std::endl;
       os << "-m model         where model is one of the following:" << std::endl;
       os << "                 zg:semantics:extrapolation        zone graph with:" << std::endl;
       os << "                   semantics:      elapsed         time-elapsed semantics" << std::endl;
-      os << "                                   non-elapsed     non time-elapsed semantics" << std::endl;
+      os << "                                   non-elapsed     non time-elapsed semantics" << std::endl;
       os << "                   extrapolation:  NOextra         no zone extrapolation" << std::endl;
       os << "                                   extraMg         ExtraM with global clock bounds" << std::endl;
       os << "                                   extraMl         ExtraM with local clock bounds" << std::endl;
