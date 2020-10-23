@@ -301,7 +301,7 @@ namespace tchecker {
    */
   using clock_constraint_container_const_iterator_t = tchecker::clock_constraint_container_t::const_iterator;
   
-  clock_throw_container_t<clock_constraint_container_t> clock_constraint_throw_container;
+  extern clock_throw_container_t<clock_constraint_container_t> clock_constraint_throw_container;
   
   
   
@@ -504,7 +504,7 @@ namespace tchecker {
    */
   using clock_reset_container_const_iterator_t = tchecker::clock_reset_container_t::const_iterator;
 
-  clock_throw_container_t<clock_reset_container_t> clock_reset_throw_container;
+  extern clock_throw_container_t<clock_reset_container_t> clock_reset_throw_container;
 
 } // end of namespace tchecker
 
