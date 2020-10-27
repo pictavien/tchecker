@@ -1,0 +1,35 @@
+system:properties_1
+
+#clock:size:name
+#int:size:min:max:init:name
+#process:name
+#event:name
+#location:process:name{attributes}
+#edge:process:source:target:event:{attributes}
+#sync:events
+#   where
+#   attributes is a colon-separated list of key:value
+#   events is a colon-separated list of process@event
+#property:id:{kind:formula}
+
+int:1:0:3:0:count
+
+process:P1
+event: a1
+location:P1:l0{initial:}
+location:P1:l1{}
+edge:P1:l0:l1:a1{provided: P2.l1}
+edge:P1:l1:l0:a1{provided: P2.l0}
+
+process:P2
+event: a2
+location:P2:l0{initial:}
+location:P2:l1{}
+location:P2:l2{labels:done}
+edge:P2:l0:l1:a2{provided: P1.l0}
+edge:P2:l1:l0:a2{provided: P1.l1 && count < 3: do:count=count+1}
+edge:P2:l1:l2:a2{provided: count == 3 }
+
+property:final{atomic:false}
+
+

@@ -19,8 +19,11 @@ set(DOT_MAX_SIZE 20000)
 # contains arguments passed to the generator script.
 set(INPUTS
     ad94.sh:
+    ad94_p.sh:
     corsso.sh:2:2:10:1:2
+    corsso_p.sh:2:2:10:1:2
     critical-region-async.sh:2:10
+    critical-region-async_p.sh:2:10
     csmacd.sh:3
     dining-philosophers.sh:3:3:10:0
     fischer-async.sh:3:10

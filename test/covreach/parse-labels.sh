@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 if ! test -n "${DOT_MAX_SIZE}";
 then
@@ -21,9 +21,15 @@ INPUTFILE="$1"
 if test -f ${INPUFILE};
 then
     LABELS=$(grep -e "^# *labels *= *\([a-zA-Z0-9_:]*\) *\$" ${INPUTFILE} | sed -e 's/^# *labels *= *//g')
+    PROPS=$(grep -e "^# *properties *= *\([a-zA-Z0-9_:]*\) *\$" ${INPUTFILE} | sed -e 's/^# *properties *= *//g')
     if test -n "${LABELS}";
     then
         COMMAND="${COMMAND} -l \"${LABELS}\""
+    else
+      if test -n "${PROPS}";
+      then
+        COMMAND="${COMMAND} -l \"${PROPS}\" -p"
+      fi
     fi
     if test "${DOTFORMAT}" = "yes";
     then
