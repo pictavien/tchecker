@@ -30,7 +30,9 @@ set(INPUTS
     fischer-async-concurrent.sh:3:10
     parallel-c.sh:3
     train_gate.sh:2
+    train_gate_p.sh:2
     train_gate.sh:3
+    train_gate_p.sh:3
     )
 
 if(NOT USE16)
