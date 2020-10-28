@@ -461,10 +461,10 @@ namespace tchecker {
                                              std::function<void(std::string const &)> error)
     {
       tchecker::process_index_t processes;
-      std::function<tchecker::loc_id_t(std::string, std::string)> find_loc([] (std::string, std::string) -> loc_id_t {
+      std::function<tchecker::loc_id_t(std::string, std::string)> find_loc([] (std::string const &, std::string const &) -> loc_id_t {
         throw std::invalid_argument("no such location");
       });
-      std::function<tchecker::label_id_t(std::string)> find_label([] (std::string) -> label_id_t {
+      std::function<tchecker::label_id_t(std::string)> find_label([] (std::string const &) -> label_id_t {
         throw std::invalid_argument("no such label");
       });
       tchecker::event_index_t events;
@@ -474,8 +474,8 @@ namespace tchecker {
 
     tchecker::typed_expression_t * typecheck(tchecker::expression_t const & expr,
                                            tchecker::process_index_t const &processes,
-                                           std::function<tchecker::loc_id_t(std::string, std::string)> find_loc,
-                                           std::function<tchecker::label_id_t(std::string)> find_label,
+                                           std::function<tchecker::loc_id_t(std::string const &, std::string const &)> find_loc,
+                                           std::function<tchecker::label_id_t(std::string const &)> find_label,
                                            tchecker::event_index_t const &events,
                                            tchecker::integer_variables_t const & localvars,
                                            tchecker::integer_variables_t const & intvars,
