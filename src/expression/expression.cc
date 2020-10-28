@@ -226,6 +226,7 @@ namespace tchecker {
   std::ostream & operator<< (std::ostream & os, enum binary_operator_t op)
   {
     switch (op) {
+      case tchecker::EXPR_OP_LOR:    return os << "||";
       case tchecker::EXPR_OP_LAND:   return os << "&&";
       case tchecker::EXPR_OP_LT:     return os << "<";
       case tchecker::EXPR_OP_LE:     return os << "<=";

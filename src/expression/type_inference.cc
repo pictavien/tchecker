@@ -63,6 +63,7 @@ namespace tchecker {
             (type == tchecker::EXPR_TYPE_CLKCONSTR_SIMPLE) ||
             (type == tchecker::EXPR_TYPE_CLKCONSTR_DIAGONAL) ||
             (type == tchecker::EXPR_TYPE_ATOMIC_PREDICATE) ||
+            (type == tchecker::EXPR_TYPE_DISJUNCTIVE_FORMULA) ||
             (type == tchecker::EXPR_TYPE_CONJUNCTIVE_FORMULA));
   }
   
@@ -73,15 +74,23 @@ namespace tchecker {
   }
   
   
-  enum tchecker::expression_type_t type_land(enum tchecker::expression_type_t left, enum tchecker::expression_type_t right)
+  enum tchecker::expression_type_t type_lor(enum tchecker::expression_type_t left, enum tchecker::expression_type_t right)
   {
     if (bool_valued(left) && bool_valued(right))
-      return tchecker::EXPR_TYPE_CONJUNCTIVE_FORMULA;
+      return tchecker::EXPR_TYPE_DISJUNCTIVE_FORMULA;
     
     return tchecker::EXPR_TYPE_BAD;
   }
   
-  
+  enum tchecker::expression_type_t type_land(enum tchecker::expression_type_t left, enum tchecker::expression_type_t right)
+  {
+    if (bool_valued(left) && bool_valued(right))
+      return tchecker::EXPR_TYPE_CONJUNCTIVE_FORMULA;
+
+    return tchecker::EXPR_TYPE_BAD;
+  }
+
+
   enum tchecker::expression_type_t type_lnot(enum tchecker::expression_type_t type)
   {
     if (integer_valued(type) || (type == tchecker::EXPR_TYPE_ATOMIC_PREDICATE) ||
@@ -210,6 +219,7 @@ namespace tchecker {
                                                enum tchecker::expression_type_t right)
   {
     switch(op) {
+      case tchecker::EXPR_OP_LOR:    return type_lor(left, right);
       case tchecker::EXPR_OP_LAND:   return type_land(left, right);
       case tchecker::EXPR_OP_LT:     return type_lt(left, right);
       case tchecker::EXPR_OP_LE:     return type_le(left, right);

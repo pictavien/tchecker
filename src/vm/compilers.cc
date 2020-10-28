@@ -352,11 +352,18 @@ namespace tchecker
        */
       virtual void visit(tchecker::typed_binary_expression_t const & expr) override
       {
+        // LOR expression
+        if (expr.binary_operator() == tchecker::EXPR_OP_LOR) {
+          if (expr.type() != tchecker::EXPR_TYPE_DISJUNCTIVE_FORMULA)
+            invalid_expression (expr, "a disjunction");
+
+          compile_lor_expression(expr);
+        }
         // LAND expression
-        if (expr.binary_operator() == tchecker::EXPR_OP_LAND) {
+        else if (expr.binary_operator() == tchecker::EXPR_OP_LAND) {
           if (expr.type() != tchecker::EXPR_TYPE_CONJUNCTIVE_FORMULA)
             invalid_expression (expr, "a conjunction");
-          
+
           compile_land_expression(expr);
         }
         // LT, LE, EQ, NEQ, GE, GT expression
@@ -473,6 +480,7 @@ namespace tchecker
       enum tchecker::instruction_t operator_to_instruction(enum tchecker::binary_operator_t op)
       {
         switch (op) {
+          case tchecker::EXPR_OP_LOR:    return tchecker::VM_LOR;
           case tchecker::EXPR_OP_LAND:   return tchecker::VM_LAND;
           case tchecker::EXPR_OP_LT:     return tchecker::VM_LT;
           case tchecker::EXPR_OP_LE:     return tchecker::VM_LE;
@@ -564,6 +572,17 @@ namespace tchecker
         _bytecode_back_inserter = cmp;
         _bytecode_back_inserter = tchecker::VM_PUSH;
         _bytecode_back_inserter = 1;
+      }
+
+      /*
+       * insert expr.left_operand() bytecode
+       * insert conditional jump JMPZ over second operand bytecode
+       * insert expr.right_operand() bytecode
+       */
+      void compile_lor_expression(tchecker::typed_binary_expression_t const & expr)
+      {
+        tchecker::typed_int_expression_t one(EXPR_TYPE_INTTERM, 1);
+        compile_ite_expression (expr.left_operand (), one, expr.right_operand ());
       }
 
       /*
