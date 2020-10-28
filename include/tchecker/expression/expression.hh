@@ -436,6 +436,7 @@ namespace tchecker {
    \brief Type of binary operators
    */
   enum binary_operator_t {
+    EXPR_OP_LOR,
     EXPR_OP_LAND,
     EXPR_OP_LT,
     EXPR_OP_LE,

@@ -45,6 +45,7 @@ namespace tchecker {
     VM_VALUEAT,      // stack = v1 ... vK-1 [vK]              vK replaced by value at addr vK
     VM_ASSIGN,       // stack = v1 ... vK-2                   [vK-1] = vK, i.e. value at address vK-1 is replaced by vK
     //
+    VM_LOR ,         // stack = v1 ... vK-2 (vK-1 || vK)
     VM_LAND,         // stack = v1 ... vK-2 (vK-1 && vK)
     VM_MINUS,        // stack = v1 ... vK-2 (vK-1 - vK)
     VM_DIV,          // stack = v1 ... vK-2 (vK-1 / vK)
@@ -379,6 +380,14 @@ namespace tchecker {
         }
           
           
+          // stack = v1 ... vK-2 (vK-1 || vK)
+        case VM_LOR:       				{
+          auto const right = top_and_pop<tchecker::integer_t>();
+          auto const left = top_and_pop<tchecker::integer_t>();
+          push<tchecker::integer_t>(left || right);
+          return top<tchecker::integer_t>();
+        }
+          
           // stack = v1 ... vK-2 (vK-1 && vK)
         case VM_LAND:       				{
           auto const right = top_and_pop<tchecker::integer_t>();
@@ -386,8 +395,8 @@ namespace tchecker {
           push<tchecker::integer_t>(left && right);
           return top<tchecker::integer_t>();
         }
-          
-          
+
+
           // stack = v1 ... vK-2 (vK-1 - vK)
         case VM_MINUS:
         {

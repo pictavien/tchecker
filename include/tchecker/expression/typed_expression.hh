@@ -42,6 +42,7 @@ namespace tchecker {
     EXPR_TYPE_ATOMIC_PREDICATE,     // Atomic integer predicate
     EXPR_TYPE_CLKCONSTR_SIMPLE,     // Atomic simple clock constraint
     EXPR_TYPE_CLKCONSTR_DIAGONAL,   // Atomic diagonal clock constraint
+    EXPR_TYPE_DISJUNCTIVE_FORMULA,  // Disjunctive formulas
     EXPR_TYPE_CONJUNCTIVE_FORMULA,  // Conjunction of atomic formulas
     EXPR_TYPE_LOCATION_ID_FORMULA,    // Formula on locations of processes
     EXPR_TYPE_LOCATION_LABEL_FORMULA, // Formula on locations of processes

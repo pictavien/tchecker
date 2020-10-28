@@ -47,6 +47,8 @@ namespace tchecker
             return os << "CLKCONSTR_SIMPLE";
           case EXPR_TYPE_CLKCONSTR_DIAGONAL:
             return os << "CLKCONSTR_DIAGONAL";
+          case EXPR_TYPE_DISJUNCTIVE_FORMULA:
+            return os << "DISJUNCTIVE_FORMULA";
           case EXPR_TYPE_CONJUNCTIVE_FORMULA:
             return os << "CONJUNCTIVE_FORMULA";
           case EXPR_TYPE_LOCATION_ID_FORMULA:

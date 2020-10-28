@@ -81,6 +81,7 @@ integer  [0-9]+
 "*"            { return program::parser_t::make_TOK_TIMES(loc); }
 "/"            { return program::parser_t::make_TOK_DIV(loc); }
 "%"            { return program::parser_t::make_TOK_MODULO(loc); }
+"||"           { return program::parser_t::make_TOK_LOR(loc); }
 "&&"           { return program::parser_t::make_TOK_LAND(loc); }
 "!"            { return program::parser_t::make_TOK_LNOT(loc); }
 "=="           { return program::parser_t::make_TOK_EQ(loc); }

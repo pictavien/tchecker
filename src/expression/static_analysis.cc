@@ -157,6 +157,7 @@ namespace tchecker {
         tchecker::integer_t right = _value;
         
         switch (expr.binary_operator()) {
+          case tchecker::EXPR_OP_LOR:     _value = left || right; break;
           case tchecker::EXPR_OP_LAND:    _value = left && right; break;
           case tchecker::EXPR_OP_LT:      _value = left < right;  break;
           case tchecker::EXPR_OP_LE:      _value = left <= right; break;

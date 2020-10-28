@@ -66,6 +66,10 @@ namespace tchecker {
         os << "ASSIGN";
         break;
 
+      case VM_LOR:
+        os << "LAND";
+        break;
+
       case VM_LAND:
         os << "LAND";
         break;

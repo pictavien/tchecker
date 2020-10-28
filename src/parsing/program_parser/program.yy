@@ -139,6 +139,7 @@
 %token                TOK_DIV               "/"
 %token                TOK_MODULO            "%"
 %token                TOK_LAND              "&&"
+%token                TOK_LOR               "||"
 %token                TOK_LNOT              "!"
 %token                TOK_EQ                "=="
 %token                TOK_NEQ               "!="
@@ -180,6 +181,7 @@
                                             local_statement
 
 %type <tchecker::expression_t *>            atomic_formula
+                                            disjunctive_formula
                                             conjunctive_formula
                                             non_atomic_conjunctive_formula
                                             predicate_formula
@@ -222,7 +224,7 @@ sequence_statement
   else
     stmt = $1;
 }
-| conjunctive_formula
+| disjunctive_formula
 {
   if (error_count > 0) {
     expr = nullptr;
@@ -307,6 +309,19 @@ lvalue_term "=" term
 }
 ;
 
+disjunctive_formula:
+conjunctive_formula
+{ $$ = $1; }
+| conjunctive_formula "||" disjunctive_formula
+{
+   try {
+     $$ = new tchecker::binary_expression_t(tchecker::EXPR_OP_LOR, $1, $3);
+   }
+   catch (std::exception const & e) {
+     error(@$, e.what());
+     $$ = new fake_expression_t();
+   }
+};
 
 conjunctive_formula:
 atomic_formula

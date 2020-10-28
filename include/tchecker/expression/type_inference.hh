@@ -89,11 +89,19 @@ namespace tchecker {
    \brief Type inference
    \param left : expression type
    \param right : expression type
+   \return type of expression left || right
+   */
+  enum tchecker::expression_type_t type_lor(enum tchecker::expression_type_t left, enum tchecker::expression_type_t right);
+  
+  /*!
+   \brief Type inference
+   \param left : expression type
+   \param right : expression type
    \return type of expression left && right
    */
   enum tchecker::expression_type_t type_land(enum tchecker::expression_type_t left, enum tchecker::expression_type_t right);
-  
-  
+
+
   /*!
    \brief Type inference
    \param type : expression type
