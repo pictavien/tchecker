@@ -66,7 +66,7 @@ endif()
 set(NOT_MEMCHECKED_TEST_REGEX "^.*$")
 
 set(COVREACH_OUTPUT_FORMATS
-    raw
+#    raw
     dot
     )
 
