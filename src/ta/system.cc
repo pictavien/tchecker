@@ -265,6 +265,7 @@ namespace tchecker {
       (os, system, tchecker::ta::tchecker_output_location);
       tchecker::tchecker_output_system_edges
       (os, system, tchecker::ta::tchecker_output_edge);
+      tchecker::tchecker_output_system_properties(os, system);
     }
     
   } // end of namespace ta

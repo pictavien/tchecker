@@ -261,6 +261,7 @@ namespace tchecker {
       (os, system, tchecker::fsm::tchecker_output_location);
       tchecker::tchecker_output_system_edges
       (os, system, tchecker::fsm::tchecker_output_edge);
+      tchecker::tchecker_output_system_properties(os, system);
     }
     
   } // end of namespace fsm
