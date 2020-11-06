@@ -69,6 +69,8 @@ integer  [0-9]+
 "while"        { return program::parser_t::make_TOK_WHILE(loc); }
 "do"           { return program::parser_t::make_TOK_DO(loc); }
 "local"        { return program::parser_t::make_TOK_LOCAL(loc); }
+"forall"       { return program::parser_t::make_TOK_FORALL(loc); }
+"exists"       { return program::parser_t::make_TOK_EXISTS(loc); }
 
 "="            { return program::parser_t::make_TOK_ASSIGN(loc); }
 "("            { return program::parser_t::make_TOK_LPAR(loc); }

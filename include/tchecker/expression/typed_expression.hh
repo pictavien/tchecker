@@ -47,6 +47,9 @@ namespace tchecker {
     EXPR_TYPE_LOCATION_ID_FORMULA,    // Formula on locations of processes
     EXPR_TYPE_LOCATION_LABEL_FORMULA, // Formula on locations of processes
     EXPR_TYPE_EVENT_FORMULA,          // Formula on event of processes
+    EXPR_TYPE_QVAR,                   // Quantified variable
+    EXPR_TYPE_FORALL_FORMULA,         // Universally quantified formulas
+    EXPR_TYPE_EXISTS_FORMULA,         // Existentially quantified formulas
   };
 
 
@@ -63,8 +66,8 @@ namespace tchecker {
 
 
   // Typed expressions
-
-  class typed_int_expression_t;           // forward declarations
+  class typed_expression_t;           // forward declarations
+  class typed_int_expression_t;
   class typed_var_expression_t;
   class typed_bounded_var_expression_t;
   class typed_array_expression_t;
@@ -77,9 +80,7 @@ namespace tchecker {
   class typed_location_id_expression_t;
   class typed_location_label_expression_t;
   class typed_event_expression_t;
-
-
-
+  class typed_quantifier_expression_t;
 
   /*!
    \class typed_expression_visitor_t
@@ -129,6 +130,7 @@ namespace tchecker {
     virtual void visit(tchecker::typed_location_id_expression_t const &) = 0;
     virtual void visit(tchecker::typed_location_label_expression_t const &) = 0;
     virtual void visit(tchecker::typed_event_expression_t const &) = 0;
+    virtual void visit(tchecker::typed_quantifier_expression_t const &) = 0;
   };
   
   /*!
@@ -179,6 +181,7 @@ namespace tchecker {
     void visit(tchecker::typed_location_id_expression_t const &) override;
     void visit(tchecker::typed_location_label_expression_t const &) override;
     void visit(tchecker::typed_event_expression_t const &) override;
+    void visit(tchecker::typed_quantifier_expression_t const &) override;
    protected:
     virtual void default_action (tchecker::typed_expression_t const &) = 0;
   };
@@ -854,7 +857,7 @@ namespace tchecker {
 
     /*!
      \class typed_ite_expression_t
-     \brief Typed binary expression
+     \brief Typed if-then-else expression
      */
     class typed_ite_expression_t : public tchecker::make_typed_expression_t<tchecker::ite_expression_t> {
      public:
@@ -1096,6 +1099,69 @@ namespace tchecker {
       tchecker::process_id_t const _process_id;
       tchecker::event_id_t const _event_id;
     };
+
+    /*!
+     \class typed_quantifier_expression_t
+     \brief Typed quantifier expression
+     */
+    class typed_quantifier_expression_t : public tchecker::make_typed_expression_t<tchecker::quantifier_expression_t> {
+     public:
+      /*!
+       \brief Constructor
+       \param type : type of expression
+       \param var : the quantified variable
+       \param start_value : first value assigned to var
+       \param end_value : last_value assigned
+       \param expr : the quantified formula
+       */
+      typed_quantifier_expression_t(tchecker::expression_type_t type,
+                                    tchecker::typed_var_expression_t * var,
+                                    tchecker::typed_expression_t * start_value,
+                                    tchecker::typed_expression_t * end_value,
+                                    tchecker::typed_expression_t * expr);
+
+      /*!
+       \brief Accessor
+       \return quantified variable
+       */
+      tchecker::typed_var_expression_t const & quantified_variable() const;
+
+
+      /*!
+       \brief Accessor
+       \return start value
+       */
+      tchecker::typed_expression_t const & start_value() const;
+
+
+      /*!
+       \brief Accessor
+       \return last_value
+       */
+      tchecker::typed_expression_t const & end_value() const;
+
+      /*!
+       \brief Accessor
+       \return last_value
+       */
+      tchecker::typed_expression_t const & quantified_expression() const;
+
+     protected:
+      /*!
+       \brief Clone
+       \return clone of this
+       */
+      tchecker::expression_t * do_clone() const override;
+
+      /*!
+       \brief Visit
+       \param v : visitor
+       */
+      void do_visit(tchecker::typed_expression_visitor_t & v) const override;
+
+      using tchecker::make_typed_expression_t<tchecker::quantifier_expression_t>::do_visit;
+    };
+
 } // end of namespace tchecker
 
 #endif // TCHECKER_EXPRESSION_TYPED_HH

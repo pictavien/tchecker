@@ -753,6 +753,104 @@ namespace tchecker {
   };
 
   /*!
+   \class quantifier_expression_t
+   \brief quantified expressions
+   */
+  class quantifier_expression_t : public virtual tchecker::expression_t {
+   public:
+    /*!
+     \brief Constructor
+     \param is_forall : type of the quantifier
+     \param var : the quantified variable
+     \param start_value : first value assigned to \a var
+     \param end_value : last value assigned to \a var
+     \param expr : then quantified expression
+     \pre var, start_value, end_value and expr are not nullptr
+     \throw std::invalid_argument : if an argument is nullptr
+     \note this takes ownership on its arguments
+     */
+    quantifier_expression_t(bool is_forall,
+                            tchecker::var_expression_t const * var,
+                            tchecker::expression_t const * start_value,
+                            tchecker::expression_t const * end_value,
+                            tchecker::expression_t const * expr);
+
+
+    /*!
+     \brief Destructor
+     \post the operand expressions have been deleted
+     */
+    virtual ~quantifier_expression_t();
+
+
+    /*!
+     \brief Accessor
+     \return the type of the quantifier
+     */
+    inline bool is_forall() const
+    {
+      return is_forall_;
+    }
+
+    inline tchecker::var_expression_t const &var () const
+    {
+      return (*var_);
+    }
+
+    inline tchecker::expression_t const &expr () const
+    {
+      return (*expr_);
+    }
+
+    /*!
+     \brief Accessor
+     \return the start value
+     */
+    inline tchecker::expression_t const & start_expr () const
+    {
+      return (* start_expr_);
+    }
+
+    /*!
+     \brief Accessor
+     \return the end value
+     */
+    inline tchecker::expression_t const & end_expr () const
+    {
+      return (* end_expr_);
+    }
+
+   protected:
+    /*!
+     \brief Output the expression
+     \param os : output stream
+     \post this has been output to os
+     \return os after this has been output
+     */
+    virtual std::ostream & do_output(std::ostream & os) const;
+
+    /*!
+     \brief Clone
+     \return A clone of this
+     */
+    virtual tchecker::expression_t * do_clone() const;
+
+    /*!
+     \brief Visit
+     \param v : visitor
+     \post v.visit(*this) has been called
+     */
+    virtual void do_visit(tchecker::expression_visitor_t & v) const;
+
+    bool is_forall_;                             /*!< kind of quantification */
+    tchecker::var_expression_t const * var_;         /*!< the variable that is quantified. */
+    tchecker::expression_t const * start_expr_; /*!< first value assigned to var_ */
+    tchecker::expression_t const * end_expr_;   /*!< last value assigned to var_ */
+    tchecker::expression_t const * expr_;            /*!< the quantified expression */
+  };
+
+
+  /*!
    \class expression_visitor_t
    \brief Visitor for expressions
    */
@@ -800,6 +898,7 @@ namespace tchecker {
     virtual void visit(tchecker::ite_expression_t const & expr) = 0;
     virtual void visit(tchecker::location_expression_t const & expr) = 0;
     virtual void visit(tchecker::event_expression_t const & expr) = 0;
+    virtual void visit(tchecker::quantifier_expression_t const & expr) = 0;
   };
 
   /*!
@@ -850,7 +949,7 @@ namespace tchecker {
     void visit(tchecker::ite_expression_t const & expr) override;
     void visit(tchecker::location_expression_t const & expr) override;
     void visit(tchecker::event_expression_t const & expr) override;
-  
+    void visit(tchecker::quantifier_expression_t const & expr) override;
 
    protected:
     virtual void default_action(tchecker::expression_t const &) = 0;

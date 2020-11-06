@@ -103,6 +103,7 @@ namespace tchecker
       virtual void visit(tchecker::typed_var_expression_t const & expr) override
       {
         if ((expr.type() != tchecker::EXPR_TYPE_CLKVAR) &&
+            (expr.type() != tchecker::EXPR_TYPE_QVAR) &&
             (expr.type() != tchecker::EXPR_TYPE_INTVAR) &&
             (expr.type() != tchecker::EXPR_TYPE_LOCALINTVAR) &&
             (expr.type() != tchecker::EXPR_TYPE_CLKARRAY) &&
@@ -232,13 +233,21 @@ namespace tchecker
       virtual void visit(tchecker::typed_var_expression_t const & expr) override
       {
         if ((expr.type() != tchecker::EXPR_TYPE_CLKVAR) &&
+            (expr.type() != tchecker::EXPR_TYPE_QVAR) &&
             (expr.type() != tchecker::EXPR_TYPE_INTVAR) &&
             (expr.type() != tchecker::EXPR_TYPE_LOCALINTVAR) &&
             (expr.type() != tchecker::EXPR_TYPE_CLKARRAY) &&
             (expr.type() != tchecker::EXPR_TYPE_INTARRAY) &&
             (expr.type() != tchecker::EXPR_TYPE_LOCALINTARRAY))
           invalid_expression (expr, "a variable");
-        
+
+        if (expr.type() == tchecker::EXPR_TYPE_QVAR)
+          {
+            _bytecode_back_inserter = tchecker::VM_VALUEAT_Q;
+            _bytecode_back_inserter = expr.id();
+            return;
+          }
+
         // Write bytecode (similar to lvalue, except last instruction)
         tchecker::details::lvalue_expression_compiler_t<BYTECODE_BACK_INSERTER> lvalue_expression_compiler(_bytecode_back_inserter);
         
@@ -440,6 +449,18 @@ namespace tchecker
         _bytecode_back_inserter = expr.event();
       }
 
+      virtual void visit(tchecker::typed_quantifier_expression_t const &expr) override
+      {
+        if (expr.type() != tchecker::EXPR_TYPE_FORALL_FORMULA &&
+            expr.type() != tchecker::EXPR_TYPE_EXISTS_FORMULA)
+          invalid_expression (expr, "an quantified formula");
+
+        compile_quantified_expression ((expr.type() == tchecker::EXPR_TYPE_EXISTS_FORMULA),
+                                       expr.quantified_variable(),
+                                       expr.start_value(), expr.end_value(),
+                                       expr.quantified_expression());
+      }
+
      private:
       /*
        \brief Translates expression binary operators into bytecode instructions
@@ -625,6 +646,50 @@ namespace tchecker
 
         //  - insert bytecode for the 'else' statement
         append_bytecode (_bytecode_back_inserter, else_bytecode);
+      }
+
+      void
+      compile_quantified_expression (bool is_exists,
+                                     tchecker::typed_var_expression_t const &var,
+                                     tchecker::typed_expression_t const &start,
+                                     tchecker::typed_expression_t const &end,
+                                     tchecker::typed_expression_t const &expr)
+      {
+        std::vector<tchecker::bytecode_t> loop_bytecode;
+        auto bi = std::back_inserter(loop_bytecode);
+
+        compile_tmp_rvalue_expression(end, loop_bytecode);
+        compile_tmp_rvalue_expression(start, loop_bytecode);
+        auto loop = loop_bytecode.size();
+
+        bi = tchecker::VM_DUP2;
+        bi = tchecker::VM_GE;
+        bi = tchecker::VM_JMPZ;
+        bi = 0; // end of the loop to be computed
+        auto j1 = loop_bytecode.size();
+
+        bi = VM_DUP;
+        bi = VM_ASSIGN_Q;
+        bi = var.id();
+        compile_tmp_rvalue_expression(expr, loop_bytecode);
+        if (is_exists)
+          bi = VM_LNOT;
+        bi = VM_JMPZ;
+        bi = 0;
+        auto j2 = loop_bytecode.size();
+        bi = VM_INC;
+        bi = VM_JMP;
+        bi = 0;
+        auto j3 = loop_bytecode.size();
+        bi = VM_LT;
+        if (is_exists)
+          bi = VM_LNOT;
+
+        loop_bytecode[j1 - 1] = j3 - j1;
+        loop_bytecode[j2 - 1] = j3 - j2;
+        loop_bytecode[j3 - 1] = -(j3 - loop);
+
+        append_bytecode (_bytecode_back_inserter, loop_bytecode);
       }
 
       void invalid_expression(tchecker::typed_expression_t const & expr,

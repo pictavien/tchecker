@@ -154,6 +154,8 @@
 %token                TOK_THEN              "then"
 %token                TOK_ELSE              "else"
 %token                TOK_WHILE             "while"
+%token                TOK_FORALL            "forall"
+%token                TOK_EXISTS            "exists"
 %token                TOK_DO                "do"
 %token                TOK_NOP               "nop"
 %token                TOK_LOCAL             "local"
@@ -193,7 +195,7 @@
 %type <tchecker::var_expression_t *>        variable_term
 %type <enum tchecker::binary_operator_t>    predicate_operator
 %type <tchecker::integer_t>                 integer
-
+%type <bool>                                quantifier
 
 
 %printer { yyoutput << $$; }                <*>;
@@ -370,7 +372,20 @@ term
     $$ = new fake_expression_t();
   }
 }
+| quantifier TOK_LPAR variable_term TOK_SEMICOLON term TOK_SEMICOLON term TOK_RPAR
+  disjunctive_formula
+  {
+    try { $$ = new tchecker::quantifier_expression_t($1, $3, $5, $7, $9); }
+    catch (std::exception const & e) {
+        error(@$, e.what());
+        $$ = new fake_expression_t();
+    }
+  }
 ;
+
+quantifier:
+  TOK_FORALL { $$ = true; }
+| TOK_EXISTS { $$ = false; }
 
 
 predicate_formula:

@@ -249,6 +249,21 @@ namespace tchecker {
                                             enum tchecker::expression_type_t then_value,
                                             enum tchecker::expression_type_t else_value);
 
+  /*!
+   \brief Type inference
+   \param quantifier : type of the expected quantifier
+   \param var : type of the quantified variable
+   \param start_value : type of the first value expression
+   \param end_value : type of the last value expression
+   \param expr : type of the quantified expression
+   \return type of expression quantifier (var, start_value, end_value) expr
+   */
+  enum tchecker::expression_type_t type_quantifier(enum tchecker::expression_type_t quantifier,
+                                                   enum tchecker::expression_type_t var,
+                                                   enum tchecker::expression_type_t start_value,
+                                                   enum tchecker::expression_type_t end_value,
+                                                   enum tchecker::expression_type_t expr);
+
 } // end of namespace tchecker
 
 #endif // TCHECKER_EXPRESSION_TYPE_INFERENCE_HH

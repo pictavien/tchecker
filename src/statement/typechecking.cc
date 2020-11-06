@@ -304,7 +304,7 @@ namespace tchecker {
 
       protected:
       tchecker::typed_statement_t * _typed_stmt;       /*!< Typed statement */
-      tchecker::integer_variables_t _localvars;  /*!< Integer variables */
+      tchecker::integer_variables_t _localvars;        /*!< Integer variables */
       tchecker::integer_variables_t const & _intvars;  /*!< Integer variables */
       tchecker::clock_variables_t const & _clocks;     /*!< Clock variables */
       std::function<void(std::string const &)> _error; /*!< Error logging func */
