@@ -801,7 +801,61 @@ namespace tchecker {
     virtual void visit(tchecker::location_expression_t const & expr) = 0;
     virtual void visit(tchecker::event_expression_t const & expr) = 0;
   };
+
+  /*!
+   \class expression_visitor_adapter_t
+   \brief Visitor for expressions
+   */
+  class expression_visitor_adapter_t : public expression_visitor_t {
+  public:
+    /*!
+     \brief Constructor
+     */
+    expression_visitor_adapter_t() = default;
+
+    /*!
+     \brief Copy constructor
+     */
+    expression_visitor_adapter_t(tchecker::expression_visitor_adapter_t const &) = default;
+
+    /*!
+     \brief Move constructor
+     */
+    expression_visitor_adapter_t(tchecker::expression_visitor_adapter_t &&) = default;
+
+    /*!
+     \brief Destructor
+     */
+    virtual ~expression_visitor_adapter_t() = default;
+
+    /*!
+     \brief Assignment operator
+     */
+    tchecker::expression_visitor_adapter_t & operator= (tchecker::expression_visitor_adapter_t const &) = default;
+
+    /*!
+     \brief Move assignment operator
+     */
+    tchecker::expression_visitor_adapter_t & operator= (tchecker::expression_visitor_adapter_t &&) = default;
+
+    /*!
+     \brief Visitors
+     */
+    void visit(tchecker::int_expression_t const & expr) override;
+    void visit(tchecker::var_expression_t const & expr) override;
+    void visit(tchecker::array_expression_t const & expr) override;
+    void visit(tchecker::par_expression_t const & expr) override;
+    void visit(tchecker::unary_expression_t const & expr) override;
+    void visit(tchecker::binary_expression_t const & expr)override;
+    void visit(tchecker::ite_expression_t const & expr) override;
+    void visit(tchecker::location_expression_t const & expr) override;
+    void visit(tchecker::event_expression_t const & expr) override;
   
+
+   protected:
+    virtual void default_action(tchecker::expression_t const &) = 0;
+  };
+
 } // end namespace tchecker
 
 #endif // TCHECKER_EXPRESSION_HH

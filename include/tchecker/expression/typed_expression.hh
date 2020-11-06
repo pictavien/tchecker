@@ -130,9 +130,58 @@ namespace tchecker {
     virtual void visit(tchecker::typed_location_label_expression_t const &) = 0;
     virtual void visit(tchecker::typed_event_expression_t const &) = 0;
   };
+  
+  /*!
+   \class typed_expression_visitor_adapter_t
+   \brief Visitor pattern for typed expressions
+   */
+  class typed_expression_visitor_adapter_t : public typed_expression_visitor_t {
+  public:
+    /*!
+     \brief Constructor
+     */
+    typed_expression_visitor_adapter_t() = default;
+
+    /*!
+     \brief Copy constructor
+     */
+    typed_expression_visitor_adapter_t(tchecker::typed_expression_visitor_adapter_t const &) = default;
+
+    /*!
+     \brief Destructor
+     */
+    virtual ~typed_expression_visitor_adapter_t() = default;
+
+    /*!
+     \brief Assignment operator
+     */
+    tchecker::typed_expression_visitor_adapter_t & operator= (tchecker::typed_expression_visitor_adapter_t const &) = default;
+
+    /*!
+     \brief Move assignment operator
+     */
+    tchecker::typed_expression_visitor_adapter_t & operator= (tchecker::typed_expression_visitor_adapter_t &&) = default;
 
 
-
+    /*!
+     \brief Visitors
+     */
+    void visit(tchecker::typed_int_expression_t const &) override;
+    void visit(tchecker::typed_var_expression_t const &) override;
+    void visit(tchecker::typed_bounded_var_expression_t const &) override;
+    void visit(tchecker::typed_array_expression_t const &) override;
+    void visit(tchecker::typed_par_expression_t const &) override;
+    void visit(tchecker::typed_binary_expression_t const &) override;
+    void visit(tchecker::typed_unary_expression_t const &) override;
+    void visit(tchecker::typed_simple_clkconstr_expression_t const &) override;
+    void visit(tchecker::typed_diagonal_clkconstr_expression_t const &) override;
+    void visit(tchecker::typed_ite_expression_t const &) override;
+    void visit(tchecker::typed_location_id_expression_t const &) override;
+    void visit(tchecker::typed_location_label_expression_t const &) override;
+    void visit(tchecker::typed_event_expression_t const &) override;
+   protected:
+    virtual void default_action (tchecker::typed_expression_t const &) = 0;
+  };
 
   /*!
    \class typed_expression_t

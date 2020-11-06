@@ -52,7 +52,7 @@ namespace tchecker
      \brief Visitor for compilation of left-value expressions
      */
     template <class BYTECODE_BACK_INSERTER>
-    class lvalue_expression_compiler_t final : public tchecker::typed_expression_visitor_t {
+    class lvalue_expression_compiler_t final : public tchecker::typed_expression_visitor_adapter_t {
     public:
       /*!
        \brief Constructor
@@ -156,41 +156,10 @@ namespace tchecker
         _bytecode_back_inserter = highoffset;
         _bytecode_back_inserter = tchecker::VM_SUM;
       }
-      
-      
-      virtual void visit(tchecker::typed_int_expression_t const & expr) override
-      { not_supported (expr); }
-      
-      virtual void visit(tchecker::typed_par_expression_t const & expr) override
-      { not_supported (expr); }
-      
-      virtual void visit(tchecker::typed_binary_expression_t const & expr) override
-      { not_supported (expr); }
-      
-      virtual void visit(tchecker::typed_unary_expression_t const & expr) override
-      { not_supported (expr); }
-      
-      virtual void visit(tchecker::typed_simple_clkconstr_expression_t const & expr) override
-      { not_supported (expr); }
-      
-      virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr) override
-      { not_supported (expr); }
-
-      virtual void visit(tchecker::typed_ite_expression_t const & expr) override
-      { not_supported (expr); }
-
-      virtual void visit(tchecker::typed_location_id_expression_t const &expr) override
-      { not_supported (expr); }
-
-      virtual void visit(tchecker::typed_location_label_expression_t const &expr) override
-      { not_supported (expr); }
-
-      virtual void visit(tchecker::typed_event_expression_t const &expr) override
-      { not_supported (expr); }
-
 
      protected:
-      void not_supported(tchecker::typed_expression_t const & expr) {
+      void default_action (tchecker::typed_expression_t const &expr) override
+      {
         throw std::invalid_argument("not lvalue expression: "+expr.to_string ());
       }
 
@@ -694,7 +663,7 @@ namespace tchecker
       
       tchecker::bytecode_t * b = new tchecker::bytecode_t[bytecode.size()];
       std::memcpy(b, bytecode.data(), bytecode.size() * sizeof(tchecker::bytecode_t));
-      
+
       return b;
     }
     catch (std::invalid_argument const & e) {
@@ -718,7 +687,7 @@ namespace tchecker
      \class variable_bounds_visitor_t
      \brief Visitor for determining variable bounds
      */
-    class variable_bounds_visitor_t : public tchecker::typed_expression_visitor_t {
+    class variable_bounds_visitor_t : public tchecker::typed_expression_visitor_adapter_t {
     public:
       /*!
        \brief Constructor
@@ -792,46 +761,16 @@ namespace tchecker
       {
         expr.variable().visit(*this);
       }
-      
-      
-      virtual void visit(tchecker::typed_int_expression_t const & expr) override
-      { not_supported (expr); }
-      
-      virtual void visit(tchecker::typed_var_expression_t const & expr) override
-      { not_supported (expr); }
-      
-      virtual void visit(tchecker::typed_par_expression_t const & expr) override
-      { not_supported (expr); }
-      
-      virtual void visit(tchecker::typed_binary_expression_t const & expr) override
-      { not_supported (expr); }
-      
-      virtual void visit(tchecker::typed_unary_expression_t const & expr) override
-      { not_supported (expr); }
-      
-      virtual void visit(tchecker::typed_simple_clkconstr_expression_t const & expr) override
-      { not_supported (expr); }
-      
-      virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr) override
-      { not_supported (expr); }
-
-      virtual void visit(tchecker::typed_ite_expression_t const & expr) override
-      { not_supported (expr); }
-
-      virtual void visit(tchecker::typed_location_id_expression_t const &expr) override
-      { not_supported (expr); }
-
-      virtual void visit(tchecker::typed_location_label_expression_t const &expr) override
-      { not_supported (expr); }
-
-      virtual void visit(tchecker::typed_event_expression_t const &expr) override
-      { not_supported (expr); }
 
      protected:
       void not_supported(tchecker::typed_expression_t const & expr) {
         throw std::invalid_argument("not a bounded variable: " + expr.to_string ());
       }
 
+      void default_action (const typed_expression_t &expression) override
+      {
+        not_supported(expression);
+      }
       tchecker::integer_t _min;  /*!< Variable minimal value */
       tchecker::integer_t _max;  /*!< Variable maximal value */
     };
