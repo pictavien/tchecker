@@ -38,7 +38,7 @@ namespace tchecker {
     //
     VM_JMP,          // unconditional jump relatively to next instruction;
     //                  offset is a parameter of the instruction
-    VM_JMPZ,         // stack = v1 ... vK   jump if vK == 0
+    VM_JMPZ,         // stack = v1 ... vK-1   jump if vK == 0
     //                  offset is a parameter of the instruction
     VM_PUSH,         // stack = v1 ... vK v                   where v is a parameter of VM_PUSH
     //
@@ -77,6 +77,13 @@ namespace tchecker {
     VM_LOCATION_ID,    // stack = v1 ... vK-2 b  where b is true iff process pid is in location loc
     VM_LOCATION_LABEL, // stack = v1 ... vK-2 b  where b is true iff process pid is in location labelled lab
     VM_EVENT,        // stack = v1 ... vK-2 b  where b is true iff process pid triggers event ev
+
+    VM_DUP,          // stack = v1 ... vK vK
+    VM_DUP2,         // stack = v1 ... vK-1 vK vK-1 vK
+    VM_INC,          // stack = v1 ... (vK+1)
+    VM_VALUEAT_Q,    // stack = v1 ... vK-1 Q[vK]
+    VM_ASSIGN_Q,     // stack = v1 ... vK-1
+                     // Q[id] is assigned with vK where id identifies a quantified variable.
 
     VM_NOP,          // SHOULD BE LAST INSTRUCTION
   };
@@ -227,7 +234,9 @@ namespace tchecker {
                             tchecker::clock_reset_container_t & clkreset)
     {
       assert( size() == 0 );    // stack should be empty
-      
+      assert( _frames.empty() );
+      assert( _qvars.empty() );
+
       if ( intvars_val.capacity() > _flat_intvars_size )
         throw std::invalid_argument("intvars valuation is too large");
       
@@ -333,7 +342,7 @@ namespace tchecker {
 
           return 1;
         }
-          // stack = v1 ... vK   jump if vK == 0
+          // stack = v1 ... vK-1   jump if vK == 0
           // offset is a parameter of the instruction
         case VM_JMPZ:
         {
@@ -620,16 +629,43 @@ namespace tchecker {
             return top<tchecker::integer_t>();
           }
 
-          case VM_EVENT:
-            throw std::runtime_error("VM_EVENT: instruction is not implemented.");
+        case VM_EVENT:
+          throw std::runtime_error("VM_EVENT: instruction is not implemented.");
           break;
-        }
+
+        case VM_ASSIGN_Q:
+          {
+            intvar_id_t id = * ++bytecode;
+            if (id >= _qvars.size())
+              _qvars.resize(id +  1, 0);
+            _qvars[id] = top_and_pop<tchecker::integer_t>();
+
+            return 1;
+          }
+
+        case VM_VALUEAT_Q:
+          {
+            intvar_id_t id = * ++bytecode;
+            if (id >= _qvars.size())
+              throw std::runtime_error ("not initialized quantified variable ");
+            push(_qvars[id]);
+            return top<tchecker::integer_t>();
+          }
+
+        case VM_DUP:
+        case VM_DUP2:
+          dup(*bytecode == VM_DUP ? 1 : 2);
+          return top<tchecker::integer_t>();
+
+        case VM_INC:
+          return inc<tchecker::integer_t>();
+      }
 
       // should never be reached
       throw std::runtime_error("incomplete switch statement");
     }
 
-    using frame_t = std::map<tchecker::bytecode_t, tchecker::integer_t>;
+    using frame_t = std::map<tchecker::intvar_id_t, tchecker::integer_t>;
 
     /*!
      \brief Look for a local variable in the stack of frames
@@ -670,6 +706,27 @@ namespace tchecker {
 
 
     // stack operations
+
+    template <class T>
+    inline T inc()
+    {
+      assert( ! _stack.empty() );
+      tchecker::bytecode_t const val = _stack.back() + 1;
+      if ( ! contains_value<T>(val) )
+        throw std::runtime_error("value out-of-bounds");
+      _stack[_stack.size() - 1] = val;
+      return static_cast<T>(val);
+    }
+
+    inline void dup(size_t nb)
+    {
+      if (nb == 0)
+        return;
+      auto sz = _stack.size();
+      assert( sz >= nb );
+      for(auto i = _stack.size() - nb; i < sz; i++)
+        push(_stack[i]);
+    }
 
     /*!
      \brief Accessor
@@ -728,6 +785,8 @@ namespace tchecker {
     inline void clear()
     {
       _stack.clear();
+      _frames.clear();
+      _qvars.clear();
     }
 
 
@@ -748,6 +807,7 @@ namespace tchecker {
     // NB: implemented as an std::vector for methods clear() and size()
 
     std::vector<frame_t> _frames;
+    std::vector<tchecker::integer_t> _qvars;
   };
 
 } // end of namespace tchecker

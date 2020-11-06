@@ -57,6 +57,12 @@ namespace tchecker
             return os << "LOCATION_LABEL_FORMULA";
           case EXPR_TYPE_EVENT_FORMULA:
             return os << "EVENT_FORMULA";
+          case EXPR_TYPE_QVAR:
+            return os << "QVAR";
+          case EXPR_TYPE_FORALL_FORMULA:
+            return os << "FORALL_FORMULA";
+          case EXPR_TYPE_EXISTS_FORMULA:
+            return os << "EXISTS_FORMULA";
           default:
             throw std::runtime_error ("incomplete switch statement");
         }
@@ -137,6 +143,12 @@ namespace tchecker
 
     void
     typed_expression_visitor_adapter_t::visit(tchecker::typed_event_expression_t const &expr)
+    {
+      default_action (expr);
+    }
+
+    void
+    typed_expression_visitor_adapter_t::visit (tchecker::typed_quantifier_expression_t const &expr)
     {
       default_action (expr);
     }
@@ -489,5 +501,83 @@ namespace tchecker
     {
       v.visit (*this);
     }
+
+
+  // quantified expressions
+  typed_quantifier_expression_t::typed_quantifier_expression_t(tchecker::expression_type_t type,
+                                                               tchecker::typed_var_expression_t * var,
+                                                               tchecker::typed_expression_t * start_value,
+                                                               tchecker::typed_expression_t * end_value,
+                                                               tchecker::typed_expression_t * expr)
+  : tchecker::make_typed_expression_t<tchecker::quantifier_expression_t>(type,
+     (type == tchecker::EXPR_TYPE_FORALL_FORMULA), var, start_value, end_value, expr)
+  {
+  }
+
+  /*!
+   \brief Accessor
+   \return quantified variable
+   */
+  tchecker::typed_var_expression_t const &
+  typed_quantifier_expression_t::quantified_variable () const
+  {
+    return dynamic_cast<tchecker::typed_var_expression_t const &>(var());
+  }
+
+  /*!
+   \brief Accessor
+   \return start value
+   */
+  tchecker::typed_expression_t const &
+  typed_quantifier_expression_t::start_value() const
+  {
+    return dynamic_cast<tchecker::typed_expression_t const &>(start_expr());
+  }
+
+
+  /*!
+   \brief Accessor
+   \return last_value
+   */
+  tchecker::typed_expression_t const &
+  typed_quantifier_expression_t::end_value() const
+  {
+    return dynamic_cast<tchecker::typed_expression_t const &>(end_expr());
+  }
+
+  /*!
+   \brief Accessor
+   \return quantified expression
+   */
+  tchecker::typed_expression_t const &
+  typed_quantifier_expression_t::quantified_expression () const
+  {
+    return dynamic_cast<tchecker::typed_expression_t const &>(expr());
+  }
+
+  /*!
+   \brief Clone
+   \return clone of this
+   */
+  tchecker::expression_t *
+  typed_quantifier_expression_t::do_clone() const
+  {
+    auto var = dynamic_cast<typed_var_expression_t *>(quantified_variable ().clone ());
+    auto start = dynamic_cast<typed_expression_t *>(start_value ().clone ());
+    auto end = dynamic_cast<typed_expression_t *>(end_value ().clone ());
+    auto expr = dynamic_cast<typed_expression_t *>(quantified_expression ().clone ());
+
+    return new typed_quantifier_expression_t(type(), var, start, end, expr);
+  }
+
+  /*!
+   \brief Visit
+   \param v : visitor
+   */
+  void
+  typed_quantifier_expression_t::do_visit(tchecker::typed_expression_visitor_t & v) const
+  {
+    v.visit(*this);
+  }
 
 } // end of namespace tchecker

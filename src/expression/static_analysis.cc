@@ -308,6 +308,8 @@ namespace tchecker {
        */
       virtual void visit(tchecker::typed_var_expression_t const & expr) override
       {
+        if (expr.type() == EXPR_TYPE_QVAR)
+          default_action(expr);
         _first = expr.id();
         _size = expr.size();
         _variable_type = expr.type();
@@ -610,7 +612,11 @@ namespace tchecker {
         expr.else_value().visit(*this);
       }
 
+      void visit(tchecker::typed_quantifier_expression_t const & expr) override
       {
+        expr.start_value().visit(*this);
+        expr.end_value().visit(*this);
+        expr.quantified_expression().visit(*this);
       }
 
      protected:

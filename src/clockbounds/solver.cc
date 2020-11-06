@@ -389,6 +389,7 @@ namespace tchecker {
         void visit(tchecker::typed_location_id_expression_t const &) override {}
         void visit(tchecker::typed_location_label_expression_t const &) override {}
         void visit(tchecker::typed_event_expression_t const &) override {}
+        void visit(tchecker::typed_quantifier_expression_t const &) override {}
 
         /*!
          \brief Visitor

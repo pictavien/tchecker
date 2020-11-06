@@ -12,8 +12,12 @@ namespace tchecker {
   
   bool integer_dereference(enum tchecker::expression_type_t type)
   {
-    return ((type == tchecker::EXPR_TYPE_INTVAR) || (type == tchecker::EXPR_TYPE_INTARRAY) ||
-            (type == tchecker::EXPR_TYPE_LOCALINTVAR) || (type == tchecker::EXPR_TYPE_LOCALINTARRAY));
+    return ((type == tchecker::EXPR_TYPE_INTVAR) ||
+            (type == tchecker::EXPR_TYPE_INTARRAY) ||
+            (type == tchecker::EXPR_TYPE_LOCALINTVAR) ||
+            (type == tchecker::EXPR_TYPE_LOCALINTARRAY) ||
+            (type == tchecker::EXPR_TYPE_QVAR)
+            );
   }
   
   
@@ -23,7 +27,8 @@ namespace tchecker {
             (type == tchecker::EXPR_TYPE_INTVAR) ||
             (type == tchecker::EXPR_TYPE_INTLVALUE) ||
             (type == tchecker::EXPR_TYPE_LOCALINTVAR) ||
-            (type == tchecker::EXPR_TYPE_LOCALINTLVALUE)
+            (type == tchecker::EXPR_TYPE_LOCALINTLVALUE) ||
+            (type == tchecker::EXPR_TYPE_QVAR)
             );
   }
   
@@ -64,7 +69,9 @@ namespace tchecker {
             (type == tchecker::EXPR_TYPE_CLKCONSTR_DIAGONAL) ||
             (type == tchecker::EXPR_TYPE_ATOMIC_PREDICATE) ||
             (type == tchecker::EXPR_TYPE_DISJUNCTIVE_FORMULA) ||
-            (type == tchecker::EXPR_TYPE_CONJUNCTIVE_FORMULA));
+            (type == tchecker::EXPR_TYPE_CONJUNCTIVE_FORMULA) ||
+            (type == tchecker::EXPR_TYPE_FORALL_FORMULA) ||
+            (type == tchecker::EXPR_TYPE_EXISTS_FORMULA));
   }
   
   
@@ -258,6 +265,22 @@ namespace tchecker {
 
     return tchecker::EXPR_TYPE_BAD;
 
+  }
+
+  enum tchecker::expression_type_t
+  type_quantifier(enum tchecker::expression_type_t quantifier,
+                  enum tchecker::expression_type_t var,
+                  enum tchecker::expression_type_t start_value,
+                  enum tchecker::expression_type_t end_value,
+                  enum tchecker::expression_type_t expr)
+  {
+    if ((quantifier == EXPR_TYPE_EXISTS_FORMULA || quantifier == EXPR_TYPE_FORALL_FORMULA) &&
+         var == EXPR_TYPE_QVAR &&
+         integer_valued(start_value) &&
+         integer_valued(end_value) &&
+         bool_valued(expr))
+      return quantifier;
+    return tchecker::EXPR_TYPE_BAD;
   }
 
 } // end of namespace tchecker

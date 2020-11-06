@@ -6,6 +6,7 @@
  */
 
 #include <limits>
+#include <iomanip>
 #include <vector>
 
 #include "tchecker/vm/vm.hh"
@@ -17,10 +18,17 @@ namespace tchecker {
   
   std::ostream & output(std::ostream & os, tchecker::bytecode_t const * bytecode)
   {
+    tchecker::bytecode_t const * base = bytecode;
     bool stop = false;
     while (!stop) {
       stop = (*bytecode == VM_RET);
+      auto fl = os.flags();
+      os.setf(std::ios::right);
+      os << std::setw(4) << std::setfill('0') << (bytecode - base) << "\t";
+      os.flags(fl);
+      os << std::setw(0);
       bytecode += output_instruction (os, bytecode);
+
     }
     return os;
   }
@@ -33,28 +41,25 @@ namespace tchecker {
       case VM_RET:
         os << "RET";
         break;
-
       case VM_RETZ:
         os << "RETZ";
         break;
-
-      case VM_FAILNOTIN:
-        os << "FAILNOTIN " << bytecode[1] << " " << bytecode[2];
+      case VM_FAILNOTIN: os << "FAILNOTIN";
         res += 2;
         break;
 
       case VM_JMP:
-        os << "JMP " << bytecode[1];
+        os << "JMP";
         res++;
         break;
 
       case VM_JMPZ:
-        os << "JMPZ " << bytecode[1];
+        os << "JMPZ";
         res++;
         break;
 
       case VM_PUSH:
-        os << "PUSH " << bytecode[1];
+        os << "PUSH";
         res++;
         break;
 
@@ -127,7 +132,7 @@ namespace tchecker {
         break;
 
       case VM_CLKCONSTR:
-        os << "CLKCONSTR " << bytecode[1];
+        os << "CLKCONSTR";
         res++;
         break;
 
@@ -160,23 +165,48 @@ namespace tchecker {
         break;
 
       case VM_LOCATION_ID:
-        os << "LOCATION_ID " << bytecode[1] << " " << bytecode[2];
+        os << "LOCATION_ID";
         res += 2;
         break;
 
       case VM_LOCATION_LABEL:
-        os << "LOCATION_LABEL " << bytecode[1] << " " << bytecode[2];
+        os << "LOCATION_LABEL";
         res += 2;
         break;
 
       case VM_EVENT:
-        os << "EVENT " << bytecode[1] << " " << bytecode[2];
+        os << "EVENT";
         res += 2;
         break;
 
+      case VM_INC:
+        os << "INC";
+        break;
+
+      case VM_DUP:
+        os << "DUP";
+        break;
+
+      case VM_DUP2:
+        os << "DUP2";
+        break;
+
+      case VM_ASSIGN_Q:
+        os << "ASSIGN_Q";
+        res++;
+        break;
+
+      case VM_VALUEAT_Q:
+        os << "VALUEAT_Q";
+        res++;
+        break;
+
       default:
-        throw std::runtime_error("incomplete switch statement");
+        throw std::runtime_error("bytecode output: incomplete switch statement");
     }
+
+    for(int i = 1; i < res; i++)
+      os << " " << bytecode[i];
     os << std::endl;
 
     return res;

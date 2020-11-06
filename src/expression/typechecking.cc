@@ -39,6 +39,7 @@ namespace tchecker {
       _find_loc(find_loc),
       _find_label(find_label),
       _events(events),
+      _qvars(),
       _localvars(localvars),
       _intvars(intvars),
       _clocks(clocks),
@@ -117,8 +118,12 @@ namespace tchecker {
         tchecker::variable_id_t const id = std::get<1>(type_id_size);
         tchecker::variable_size_t const size = std::get<2>(type_id_size);
         
+        // quantified integer variable
+        if ((type == tchecker::EXPR_TYPE_QVAR)) {
+          _typed_expr = new tchecker::typed_var_expression_t(type, expr.name(), id, size);
+        }
         // bounded integer variable
-        if ((type == tchecker::EXPR_TYPE_LOCALINTVAR) || (type == tchecker::EXPR_TYPE_LOCALINTARRAY)) {
+        else if ((type == tchecker::EXPR_TYPE_LOCALINTVAR) || (type == tchecker::EXPR_TYPE_LOCALINTARRAY)) {
           auto const & infos = _localvars.info(id);
           _typed_expr = new tchecker::typed_bounded_var_expression_t(type, expr.name(), id, size, infos.min(), infos.max());
         }
@@ -380,6 +385,39 @@ namespace tchecker {
          }
      }
 
+      void visit (quantifier_expression_t const &expr) override
+      {
+        _qvars.push_back(expr.var().name());
+
+        // Operands
+        expr.start_expr().visit(*this);
+        tchecker::typed_expression_t * first_value = this->release();
+
+        expr.end_expr().visit(*this);
+        tchecker::typed_expression_t * last_value= this->release();
+
+        expr.var().visit(*this);
+        auto qvar = dynamic_cast<tchecker::typed_var_expression_t *>(this->release());
+        assert (qvar != nullptr);
+
+        expr.expr().visit(*this);
+        tchecker::typed_expression_t * qexpr= this->release();
+
+        enum tchecker::expression_type_t expr_type =
+            expr.is_forall() ? EXPR_TYPE_FORALL_FORMULA : EXPR_TYPE_EXISTS_FORMULA;
+        expr_type = type_quantifier (expr_type, qvar->type(), first_value->type(),
+                                     last_value->type (), qexpr->type());
+
+        if (expr_type != tchecker::EXPR_TYPE_BAD)
+          _typed_expr =
+              new tchecker::typed_quantifier_expression_t(expr_type, qvar,
+                                                          first_value, last_value,
+                                                          qexpr);
+        else
+          _error("type error in expression " + expr.to_string());
+        _qvars.pop_back();
+      }
+
      protected:
       /*!
        \brief Accessor
@@ -399,7 +437,18 @@ namespace tchecker {
       std::tuple<enum tchecker::expression_type_t, tchecker::variable_id_t, tchecker::variable_size_t>
       typecheck_variable(std::string const & name)
       {
-        // Integer variable ?
+        // Quantified variable ?
+        if (! _qvars.empty())
+          {
+            intvar_id_t id = _qvars.size () - 1;
+            for (auto qv = _qvars.rbegin (); qv != _qvars.rend (); qv++, id--)
+              {
+                if (*qv == name)
+                  return std::make_tuple (tchecker::EXPR_TYPE_QVAR, id, 1);
+              }
+          }
+
+        // Local variable ?
         try {
           auto id = _localvars.id(name);
           auto size = _localvars.info(id).size();
@@ -410,7 +459,7 @@ namespace tchecker {
         }
         catch (...)
         {}
-        
+
         // Integer variable ?
         try {
           auto id = _intvars.id(name);
@@ -444,6 +493,7 @@ namespace tchecker {
       std::function<tchecker::loc_id_t(std::string, std::string)> _find_loc; /*!< Find location callback */
       std::function<tchecker::label_id_t(std::string)> _find_label; /*!< Find label callback */
       tchecker::event_index_t const & _events;           /*! < Events */
+      std::vector<std::string> _qvars;                   /*!< Quantified variables */
       tchecker::integer_variables_t const & _localvars;  /*!< Local variables */
       tchecker::integer_variables_t const & _intvars;    /*!< Integer variables */
       tchecker::clock_variables_t const & _clocks;       /*!< Clock variables */

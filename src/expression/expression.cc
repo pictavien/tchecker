@@ -367,8 +367,8 @@ namespace tchecker {
 
   // event_expression_t
   event_expression_t::event_expression_t(std::string const & process,
-                                               std::string const & event)
-                                     :_process(process), _event(event)
+                                         std::string const & event)
+      :_process(process), _event(event)
   {
     if (_process.empty())
       throw std::invalid_argument("empty process name");
@@ -390,4 +390,117 @@ namespace tchecker {
   {
     v.visit(*this);
   }
+
+  // quantifiers
+  quantifier_expression_t::quantifier_expression_t(bool is_forall,
+                                                   tchecker::var_expression_t const * var,
+                                                   tchecker::expression_t const * start_value,
+                                                   tchecker::expression_t const * end_value,
+                                                   tchecker::expression_t const * expr)
+      :	is_forall_(is_forall), var_(var), start_expr_(start_value), end_expr_(end_value), expr_(expr)
+  {
+    if (var_ == nullptr)
+      throw std::invalid_argument("nullptr quantified variable");
+    if (start_expr_ == nullptr)
+      throw std::invalid_argument("nullptr start_value expression");
+    if (end_expr_ == nullptr)
+      throw std::invalid_argument("nullptr end_value expression");
+    if (expr_ == nullptr)
+      throw std::invalid_argument("nullptr expr expression");
+  }
+
+
+  quantifier_expression_t::~quantifier_expression_t()
+  {
+    delete var_;
+    delete start_expr_;
+    delete end_expr_;
+    delete expr_;
+  }
+
+  std::ostream &
+  quantifier_expression_t::do_output(std::ostream & os) const
+  {
+    os << (is_forall_ ? "forall" : "exists")
+       << "(" << var () << "; " << start_expr () << "; " << end_expr () << ") "
+       << expr ();
+    return os;
+  }
+
+  tchecker::expression_t *
+  quantifier_expression_t::do_clone() const
+  {
+    return new tchecker::quantifier_expression_t(is_forall_,
+                                                 dynamic_cast<tchecker::var_expression_t *>(var_->clone ()),
+                                                 start_expr_->clone (),
+                                                 end_expr_->clone (),
+                                                 expr_->clone ());
+  }
+
+  void
+  quantifier_expression_t::do_visit(tchecker::expression_visitor_t & v) const
+  {
+    v.visit(*this);
+  }
+
+  // expression_visitor_adapter_t
+  void
+  expression_visitor_adapter_t::visit(tchecker::int_expression_t const & expr)
+  {
+    default_action(expr);
+  }
+
+  void
+  expression_visitor_adapter_t::visit(tchecker::var_expression_t const & expr)
+  {
+    default_action(expr);
+  }
+
+  void
+  expression_visitor_adapter_t::visit(tchecker::array_expression_t const & expr)
+  {
+    default_action(expr);
+  }
+
+  void
+  expression_visitor_adapter_t::visit(tchecker::par_expression_t const & expr)
+  {
+    default_action(expr);
+  }
+
+  void
+  expression_visitor_adapter_t::visit(tchecker::unary_expression_t const & expr)
+  {
+    default_action(expr);
+  }
+
+  void
+  expression_visitor_adapter_t::visit(tchecker::binary_expression_t const & expr)
+  {
+    default_action(expr);
+  }
+
+  void
+  expression_visitor_adapter_t::visit(tchecker::ite_expression_t const & expr)
+  {
+    default_action(expr);
+  }
+
+  void
+  expression_visitor_adapter_t::visit(tchecker::location_expression_t const & expr)
+  {
+    default_action(expr);
+  }
+
+  void
+  expression_visitor_adapter_t::visit(tchecker::event_expression_t const & expr)
+  {
+    default_action(expr);
+  }
+
+  void expression_visitor_adapter_t::visit(tchecker::quantifier_expression_t const & expr)
+  {
+    default_action(expr);
+  }
+
 } // end of namespace tchecker
