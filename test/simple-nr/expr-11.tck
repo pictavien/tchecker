@@ -1,0 +1,25 @@
+system:expr_11
+
+#clock:size:name
+#int:size:min:max:init:name
+#process:name
+#event:name
+#location:process:name{attributes}
+#edge:process:source:target:event:{attributes}
+#sync:events
+#   where
+#   attributes is a colon-separated list of key:value
+#   events is a colon-separated list of process@event
+
+int:1:11:11:11:N
+int:51:0:10:0:count
+
+process:P
+event: a
+location:P:l0{initial:}
+location:P:l1{}
+location:P:l2{}
+edge:P:l0:l1:a{provided: count[N]==0 : do : count[N] = 6 }
+edge:P:l1:l2:a{provided: exists(i;0;50) count[i] !=0 }
+
+
