@@ -17,7 +17,7 @@ namespace tchecker {
      \class const_expression_evaluator_t
      \brief Expression visitor for evaluation of constant expressions
      */
-    class const_expression_evaluator_t : public tchecker::expression_visitor_t {
+    class const_expression_evaluator_t : public tchecker::expression_visitor_adapter_t {
     public:
       /*!
        \brief Constructor
@@ -100,26 +100,6 @@ namespace tchecker {
       /*!
        \brief Visitor
        \param expr : expression
-       \throw std::invalid_argument
-       */
-      virtual void visit(tchecker::var_expression_t const & expr) override
-      {
-        throw std::invalid_argument("not a constant expression");
-      }
-      
-      /*!
-       \brief Visitor
-       \param expr : expression
-       \throw std::invalid_argument
-       */
-      virtual void visit(tchecker::array_expression_t const & expr) override
-      {
-        throw std::invalid_argument("not a constant expression");
-      }
-      
-      /*!
-       \brief Visitor
-       \param expr : expression
        \post visits expr's sub expression
        */
       virtual void visit(tchecker::par_expression_t const & expr) override
@@ -189,18 +169,12 @@ namespace tchecker {
           expr.else_value ().visit(*this);
       }
 
-      virtual void visit(tchecker::location_expression_t const & expr) override
-      {
-        throw std::invalid_argument("not a constant expression");
-      }
-
-      virtual void visit(tchecker::event_expression_t const & expr) override
-      {
-        throw std::invalid_argument("not a constant expression");
-      }
-
-     protected:
+    protected:
       tchecker::integer_t _value;  /*!< Expression value */
+
+      void default_action(tchecker::expression_t const & expr) override {
+        throw std::invalid_argument ("not a constant expression '" + expr.to_string() + "'");
+      }
     };
     
   } // end of namespace details
@@ -251,7 +225,7 @@ namespace tchecker {
      \note base variables are simple variables and base names of array expression (i.e. x in x[e])
      \throw std::invalid_argument : if the expression is not an lvalue expression
      */
-    class base_variable_ids_extractor_t : public tchecker::typed_expression_visitor_t {
+    class base_variable_ids_extractor_t : public tchecker::typed_expression_visitor_adapter_t {
     public:
       /*!
        \brief Constructor
@@ -369,62 +343,16 @@ namespace tchecker {
         {}
         _variable_type = expr.variable().type();
       }
-      
-      // Other visitors
-      virtual void visit(tchecker::typed_int_expression_t const &) override
-      {
-        throw std::invalid_argument("not an lvalue expression");
-      }
-      
-      virtual void visit(tchecker::typed_par_expression_t const &) override
-      {
-        throw std::invalid_argument("not an lvalue expression");
-      }
-      
-      virtual void visit(tchecker::typed_binary_expression_t const &) override
-      {
-        throw std::invalid_argument("not an lvalue expression");
-      }
-      
-      virtual void visit(tchecker::typed_unary_expression_t const &) override
-      {
-        throw std::invalid_argument("not an lvalue expression");
-      }
-      
-      virtual void visit(tchecker::typed_simple_clkconstr_expression_t const &) override
-      {
-        throw std::invalid_argument("not an lvalue expression");
-      }
-      
-      virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const &) override
-      {
-        throw std::invalid_argument("not an lvalue expression");
-      }
-
-      virtual void visit(tchecker::typed_ite_expression_t const &) override
-      {
-        throw std::invalid_argument("not an lvalue expression");
-      }
-
-      virtual void visit(tchecker::typed_location_id_expression_t const & expr) override
-      {
-        throw std::invalid_argument("not a lvalue expression");
-      }
-
-      virtual void visit(tchecker::typed_location_label_expression_t const & expr) override
-      {
-        throw std::invalid_argument("not a lvalue expression");
-      }
-
-      virtual void visit(tchecker::typed_event_expression_t const & expr) override
-      {
-        throw std::invalid_argument("not a lvalue expression");
-      }
 
      protected:
       tchecker::variable_id_t _first;                   /*!< ID of first variable */
       tchecker::variable_id_t _size;                    /*!< Number of variables */
       enum tchecker::expression_type_t _variable_type;  /*!< Type of base variable */
+
+      void default_action (tchecker::typed_expression_t const &expr) override
+      {
+        throw std::invalid_argument("not an lvalue expression '" + expr.to_string() +"'");
+      }
     };
     
   } // end of namespace details
@@ -484,7 +412,7 @@ namespace tchecker {
      \brief Visitor of typed expressions for extraction of variable IDs from the offset of array expressions
      \note does nothing if the visited expression is not of type tchecker::typed_array_expression_t
      */
-    class extract_offset_variables_visitor_t : public tchecker::typed_expression_visitor_t {
+    class extract_offset_variables_visitor_t : public tchecker::typed_expression_visitor_adapter_t {
     public:
       /*!
        \brief Constructor
@@ -524,7 +452,7 @@ namespace tchecker {
        */
       virtual void visit(tchecker::typed_var_expression_t const & expr) override
       {}
-      
+
       /*!
        \brief Nothing to do (not an array)
        */
@@ -538,62 +466,15 @@ namespace tchecker {
       {
         tchecker::extract_variables(expr.offset(), _clocks, _intvars);
       }
-      
-      /* Other visitors (throw: not an lvalue expression) */
-      
-      virtual void visit(tchecker::typed_int_expression_t const &) override
-      {
-        throw std::invalid_argument("not an lvalue expression");
-      }
-      
-      virtual void visit(tchecker::typed_par_expression_t const & expr) override
-      {
-        throw std::invalid_argument("not an lvalue expression");
-      }
-      
-      virtual void visit(tchecker::typed_binary_expression_t const & expr) override
-      {
-        throw std::invalid_argument("not an lvalue expression");
-      }
-      
-      virtual void visit(tchecker::typed_unary_expression_t const & expr) override
-      {
-        throw std::invalid_argument("not an lvalue expression");
-      }
-      
-      virtual void visit(tchecker::typed_simple_clkconstr_expression_t const & expr) override
-      {
-        throw std::invalid_argument("not an lvalue expression");
-      }
-      
-      virtual void visit(tchecker::typed_diagonal_clkconstr_expression_t const & expr) override
-      {
-        throw std::invalid_argument("not an lvalue expression");
-      }
 
-      virtual void visit(tchecker::typed_ite_expression_t const & expr) override
-      {
-        throw std::invalid_argument("not an lvalue expression");
-      }
-
-      virtual void visit(tchecker::typed_location_id_expression_t const & expr) override
-      {
-        throw std::invalid_argument("not a lvalue expression");
-      }
-
-      virtual void visit(tchecker::typed_location_label_expression_t const & expr) override
-      {
-        throw std::invalid_argument("not a lvalue expression");
-      }
-
-      virtual void visit(tchecker::typed_event_expression_t const & expr) override
-      {
-        throw std::invalid_argument("not a lvalue expression");
-      }
-
-     private:
+    private:
       std::unordered_set<tchecker::clock_id_t> & _clocks;    /*!< Set of clock IDs */
       std::unordered_set<tchecker::intvar_id_t> & _intvars;  /*!< Set of integer variable IDs */
+
+      void default_action (tchecker::typed_expression_t const & expr) override
+      {
+        throw std::invalid_argument("not an lvalue expression '" + expr.to_string() + "'");
+      }
     };
 
 
@@ -619,7 +500,7 @@ namespace tchecker {
      \class extract_variables_visitor_t
      \brief Visitor of typed expressions for extraction of variables IDs
      */
-    class extract_variables_visitor_t : public tchecker::typed_expression_visitor_t {
+    class extract_variables_visitor_t : public tchecker::typed_expression_visitor_adapter_t {
     public:
       /*!
        \brief Constructor
@@ -693,9 +574,7 @@ namespace tchecker {
       }
       
       /* Other visitors (recursion) */
-      
-      virtual void visit(tchecker::typed_int_expression_t const &) override {}
-      
+
       virtual void visit(tchecker::typed_par_expression_t const & expr) override
       {
         expr.expr().visit(*this);
@@ -731,17 +610,11 @@ namespace tchecker {
         expr.else_value().visit(*this);
       }
 
-      virtual void visit(tchecker::typed_location_id_expression_t const & expr) override
       {
       }
 
-      virtual void visit(tchecker::typed_location_label_expression_t const & expr) override
-      {
-      }
-
-      virtual void visit(tchecker::typed_event_expression_t const & expr) override
-      {
-      }
+     protected:
+      void default_action (const typed_expression_t &expression) override { }
 
      private:
       /*!

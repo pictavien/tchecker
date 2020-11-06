@@ -62,6 +62,85 @@ namespace tchecker
         }
     }
 
+    /* typed_expression_visitor_adapter_t */
+    void
+    typed_expression_visitor_adapter_t::visit (tchecker::typed_int_expression_t const &expr)
+    {
+      default_action (expr);
+    }
+
+    void
+    typed_expression_visitor_adapter_t::visit (tchecker::typed_var_expression_t const &expr)
+    {
+      default_action (expr);
+    }
+
+    void
+    typed_expression_visitor_adapter_t::visit (tchecker::typed_bounded_var_expression_t const &expr)
+    {
+      default_action (expr);
+    }
+
+    void
+    typed_expression_visitor_adapter_t::visit (tchecker::typed_array_expression_t const &expr)
+    {
+      default_action (expr);
+    }
+
+    void
+    typed_expression_visitor_adapter_t::visit (tchecker::typed_par_expression_t const &expr)
+    {
+      default_action (expr);
+    }
+
+    void
+    typed_expression_visitor_adapter_t::visit (tchecker::typed_binary_expression_t const &expr)
+    {
+      default_action (expr);
+    }
+
+    void
+    typed_expression_visitor_adapter_t::visit (tchecker::typed_unary_expression_t const &expr)
+    {
+      default_action (expr);
+    }
+
+    void
+    typed_expression_visitor_adapter_t::visit (tchecker::typed_simple_clkconstr_expression_t const &expr)
+    {
+      default_action (expr);
+    }
+
+    void
+    typed_expression_visitor_adapter_t::visit (tchecker::typed_diagonal_clkconstr_expression_t const &expr)
+    {
+      default_action (expr);
+    }
+
+    void
+    typed_expression_visitor_adapter_t::visit (tchecker::typed_ite_expression_t const &expr)
+    {
+      default_action (expr);
+    }
+
+    void
+    typed_expression_visitor_adapter_t::visit(tchecker::typed_location_id_expression_t const &expr)
+    {
+      default_action (expr);
+    }
+
+    void
+    typed_expression_visitor_adapter_t::visit(tchecker::typed_location_label_expression_t const &expr)
+    {
+      default_action (expr);
+    }
+
+    void
+    typed_expression_visitor_adapter_t::visit(tchecker::typed_event_expression_t const &expr)
+    {
+      default_action (expr);
+    }
+
     /* typed_expression_t */
 
     typed_expression_t::typed_expression_t (enum tchecker::expression_type_t type)
