@@ -1,4 +1,5 @@
 Attribute provided: P2.x: ERROR, in expression P2.x, unknown location or label x
-ERROR, not a Boolean expression 'P2.x'.
+Attribute provided: P2.x: ERROR, not a Boolean expression 'P2.x'.
+ERROR, System compilation failure
 
-2 error(s)
+3 error(s)

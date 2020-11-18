@@ -1,4 +1,5 @@
 Attribute provided: P1.l3&&count<3: ERROR, in expression P1.l3, unknown location or label l3
-ERROR, not a Boolean expression 'P1.l3&&count<3'.
+Attribute provided: P1.l3&&count<3: ERROR, not a Boolean expression 'P1.l3&&count<3'.
+ERROR, System compilation failure
 
-2 error(s)
+3 error(s)
